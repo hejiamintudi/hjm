@@ -2,8 +2,8 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        isDebug: false
-    },
+        isDebug: false //hhhhhhhhhh
+    }, 
 
     onLoad: function () {
         let __isDebug = this.isDebug;
