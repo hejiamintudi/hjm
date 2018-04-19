@@ -2,7 +2,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        isDebug: false //不知道你现在怎么了
+        isDebug: false //不爽
     }, 
 
     onLoad: function () {
