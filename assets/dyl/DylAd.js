@@ -2,7 +2,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        isDebug: false // 嘉敏现在怎么了？
+        isDebug: false // 嘉敏 嘉敏
     }, 
 
     onLoad: function () {
