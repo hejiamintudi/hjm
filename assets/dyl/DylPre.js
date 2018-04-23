@@ -36,6 +36,24 @@ function _toConsumableArray(arr) {
     }
 }
 
+var updateFunArr = [];
+
+cc.director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
+    var dt = cc.director.getDeltaTime();
+    // cc.log(dt, "end");
+    for (var i = updateFunArr.length - 1; i >= 0; i--) {
+        if (!updateFunArr[i](dt)) {
+            updateFunArr[i] = updateFunArr[updateFunArr.length - 1];
+            updateFunArr[i].id = i;
+            updateFunArr.length--;
+        }
+    }
+});
+
+cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
+    updateFunArr = [];
+});
+
 window.initDylFun = function (cryptoJS) {
     cc.log("initDylFun", cryptoJS);
     window.dyl = window.dyl || {};
@@ -684,6 +702,18 @@ window.initDylFun = function (cryptoJS) {
         }
 
         counter();
+    };
+
+    dyl.update = function (fun) {
+        fun.id = updateFunArr.length;
+        updateFunArr.push(fun);
+        var delFun = function () {
+            var id = fun.id;
+            updateFunArr[id] = updateFunArr[updateFunArr.length - 1];
+            updateFunArr[id].id = id;
+            updateFunArr.length--;
+        }
+        return delFun;
     };
 };
 
