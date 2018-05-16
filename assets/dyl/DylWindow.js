@@ -39,6 +39,7 @@ cc.Class({
     editor: {
         menu: "dyl/弹窗-保存状态",
         executeInEditMode: true,
+        inspector: 'packages://dyl-window/DylWindow.js',
     },
     ctor: function() {
     	Object.defineProperty(this,"node",{//这里的方法名name,就表示定义了一个name属性（因此才能通过object.name访问）,只定义了getter访问器,没有定义[[value]]值
@@ -54,26 +55,17 @@ cc.Class({
 		});
     },
     properties: {
+        defaultData: {
+            default: null,
+            type: NodeDataArr,
+        },
     	data: {
     		default: [],
     		type: NodeDataArr,
     		visible: false,
     	},
     	// [SaveData],
-    	showData: {
-    		default: "",
-    		type: cc.String,
-    		notify(){
-    			// if (this._getString(this.showData) === this._getString(this.))
-    			let name = this._getString(this.showData);
-    			for (let i = this.stateArr.length - 1; i >= 0; i--) {
-    				if (this._getString(this.stateArr[i]) === name) {
-    					this._read(i);
-    					return;
-    				}
-    			}
-    		}
-    	},
+    	showData: "default",
     	_stateArr:{
     		default: [],
     		type: cc.String
@@ -81,41 +73,130 @@ cc.Class({
     	stateArr: {
     		default: [],
     		type: cc.String,
-    		notify() {
-    			for (let i = this._stateArr.length - 1; i >= 0; i--) {
-    				if (this._stateArr[i] !== this.stateArr[i]) {
-    					if (this.stateArr[i] === " ") {
-    						this.stateArr[i] = this._stateArr[i];
-    					}
-    					this._save(i);
-    				}
-    			}
-    			this._stateArr.length = 0;
-    			this._stateArr.push(...this.stateArr);	
-    		}
+    		// notify() {
+    		// 	for (let i = this._stateArr.length - 1; i >= 0; i--) {
+    		// 		if (this._stateArr[i] !== this.stateArr[i]) {
+    		// 			if (this.stateArr[i] === " ") {
+    		// 				this.stateArr[i] = this._stateArr[i];
+    		// 			}
+    		// 			this._save(i);
+    		// 		}
+    		// 	}
+    		// 	this._stateArr.length = 0;
+    		// 	this._stateArr.push(...this.stateArr);	
+    		// }
     	},
     },
 
     _myInit: function() {
-    	// cc.log("stateArr", this.stateArr);
-    	// let tab = {};
-    	// for (let i = this.stateArr.length - 1; i >= 0; i--) {
-    	// 	let name = this._getString(this.stateArr[i]);
-    	// 	tab[name] = i;
+        cc.log("_myInit");
+        this.node.add = (state)=>this.addFun(state);
+        this.node.del = ()=>this.delFun();
+    	// this.node.add = (name, time)=>{
+     //        if (!name) {
+     //            return this.myAct(time);
+     //        }
+    	// 	name = this._getString(name);
+    	// 	for (let i = this.stateArr.length - 1; i >= 0; i--) {
+	    // 		if(name === this._getString(this.stateArr[i])) {
+	    // 			this._read(i);
+	    // 			break;
+	    // 		}
+	    // 	}
+	    // 	this.myAct(time);
     	// }
-    	this.node.add = (name, time)=>{
-            if (!name) {
-                return this.myAct(time);
+    },
+
+    getAction: function (from, to) {
+        if (!to.active) {
+            cc.log("return 0");
+            return [];
+        }
+        let time = 0;
+        let fun = (t)=>{
+            time = (time > t) ? time : t;
+        }
+        let getTime = (name, r)=>{
+            fun(Math.abs(to[name] - from[name]) * 0.4 / r);
+        }
+        fun(to.p.sub(from.p).mag() * 0.4 / 540);
+        getTime("rotation", 60);
+        getTime("scaleX", 0.7);
+        getTime("scaleY", 0.7);
+        getTime("opacity", 150);
+        if (time < 0.0001) {
+            cc.log("return 1");
+            return [];
+        }
+        let arr = [];
+        let addAct = (act)=>{
+            act.easing(cc.easeSineOut());
+            act.node = to.node;
+            arr.push(act);
+        }
+        addAct(cc.moveTo(time, to.p));
+        addAct(cc.rotateTo(time, to.rotation));
+        addAct(cc.scaleTo(time, to.scaleX, to.scaleY));
+        addAct(cc.fadeTo(time, to.opacity));
+        cc.log("return 2");
+        return arr;
+    },
+
+    notActChange: function (dataArr) {
+        for (var i = dataArr.length - 1; i >= 0; i--) {
+            let {node, anchorX, anchorY, height, width, color, skewX, skewY, active, lab} = dataArr[i];
+            node.active = active;
+            node.anchorX = anchorX;
+            node.anchorY = anchorY;
+            node.height = height;
+            node.width = width;
+            node.color = color;
+            node.skewX = skewX;
+            node.skewY = skewY;
+            if (node.getComponent(cc.Label)){
+                node.getComponent(cc.Label).string = lab;
             }
-    		name = this._getString(name);
-    		for (let i = this.stateArr.length - 1; i >= 0; i--) {
-	    		if(name === this._getString(this.stateArr[i])) {
-	    			this._read(i);
-	    			break;
-	    		}
-	    	}
-	    	this.myAct(time);
-    	}
+        }
+    },
+
+    addFun: function (state) {
+        if (!state) {
+            state = this.showData;
+        }
+        else {
+            this.showData = state;
+        }
+        if (state === "default") {
+            cc.log("default");
+            return this._read("default");
+        }
+        this._read("default");
+        let dataArr = this.data[this.stateArr.indexOf(state)].arr;
+        this.notActChange(dataArr);
+        let arr = [];
+        for (var i = dataArr.length - 1; i >= 0; i--) {
+            arr.push(...this.getAction(this.defaultData.arr[i], dataArr[i]));
+        }
+        for (let i = 0; i < arr.length; i++) {
+            cc.log("...", i, "...");
+            cc.log(arr[i].node, arr[i].active);
+            cc.log(arr[i]);
+        }
+        dyl.run(arr, ()=>cc.log("run addFun"));
+    },
+
+    delFun: function () {
+        if (this.showData === "default") {
+            return this.node.active = false;
+        }
+        let dataArr = this.data[this.stateArr.indexOf(this.showData)].arr;
+        let arr = [];
+        for (var i = dataArr.length - 1; i >= 0; i--) {
+            arr.push(...this.getAction(dataArr[i], this.defaultData.arr[i]));
+        }
+        dyl.run(arr, ()=>{
+            this.node.active = false;
+        })
     },
 
     myAct: function(time) {
@@ -150,17 +231,29 @@ cc.Class({
     	return str.replace(/\s+/g,"");
     },
 
-    _read: function(id) {
-        if (this._getString(this.stateArr[id]) === "") {
-            return;
+    _read: function(name) {
+        // if (this._getString(this.stateArr[id]) === "") {
+        //     return;
+        // }
+        let dataArr = null;
+        if (name === "default") {
+            dataArr = this.defaultData.arr;
         }
-    	// cc.log("read", id);
-    	// cc.log(this.data);
-    	// for (let i in this.data) {
-    	// 	cc.log("i", i);
-    	// }
-    	// cc.log(this.data[id]);
-    	let dataArr = this.data[id].arr;
+        else {
+            for (var i = this.stateArr.length - 1; i >= 0; i--) {
+                if (this.stateArr[i] === name) {
+                    dataArr = this.data[i].arr;
+                }
+            }
+        }
+    	// let dataArr = this.data[id].arr;
+
+        // cc.log("read", id);
+        // cc.log(this.data);
+        // for (let i in this.data) {
+        //  cc.log("i", i);
+        // }
+        // cc.log(this.data[id]);
     	// for (let i = 0; i < dataArr.length; i++) {
     	// 	cc.log("ii", i, dataArr[i]);
     	// }
@@ -183,19 +276,19 @@ cc.Class({
     		node.opacity = data.opacity;
     		node.skewX = data.skewX;
     		node.skewY = data.skewY;
-    		node.active = data.active;
             let lab = node.getComponent(cc.Label);
             if (lab) {
                 lab.string = data.lab;
             }
-    		if (node.name === "Canvas") {
-    			let canvas = this.node.getComponent(cc.Canvas);
-    			canvas.designResolution = cc.size(data.width, data.height);
-    		}
-    		else {
-	    		node.height = data.height;
-	    		node.width = data.width;
-    		}
+            if (node.name === "Canvas") {
+                let canvas = this.node.getComponent(cc.Canvas);
+                canvas.designResolution = cc.size(data.width, data.height);
+            }
+            else {
+                node.height = data.height;
+                node.width = data.width;
+            }
+    		node.active = data.active;
     	}
     	//   	id: "",
 		// node: cc.Node,
@@ -211,9 +304,40 @@ cc.Class({
 
     },
 
-    _save: function(id) {
+    buttonSave: function(name) {
+        if (name === "default") {
+            this.defaultData = this._getSaveData();
+            return;
+        }
+        for (var i = this.stateArr.length - 1; i >= 0; i--) {
+            if (this.stateArr[i] === name) {
+                this.data[i] = this._getSaveData();
+            }
+        }
+    },
+
+    _save: function(id, value, oldValue) {
     	// cc.log("save");
-    	this.data[id] = this._getSaveData();
+        // let oldValue = this.stateArr[id];
+        this.stateArr[id] = value;
+        if (value === "default") {
+            this.defaultData = this._getSaveData();
+            this.stateArr[id] = "";
+            return;
+        }
+        else {
+    	   this.data[id] = this._getSaveData();
+        }
+        // cc.log("_save", id, value, oldValue);
+        if (value === "") {
+            this.stateArr[id] = oldValue;
+        }
+        for (var i = this.stateArr.length - 1; i >= 0; i--) {
+            if ((this.stateArr[i] === this.stateArr[id]) && (i !== id)) {
+                this.stateArr[id] = "";
+                return;
+            }
+        }
     	// for (let i in this.data) {
     	// 	cc.log("i", i);
     	// }
