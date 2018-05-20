@@ -13,7 +13,6 @@ cc.Class({
         menu: "dyl/按钮",
         executeInEditMode: true,
         inspector: 'packages://dyl-button/DylButton.js',
-        icon: 'packages://dyl-button/button.png',
     },
     properties: {
         // audio: {
