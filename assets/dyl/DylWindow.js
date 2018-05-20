@@ -90,8 +90,8 @@ cc.Class({
 
     _myInit: function() {
         cc.log("_myInit");
-        this.node.add = (state)=>this.addFun(state);
-        this.node.del = ()=>this.delFun();
+        this.node.add = (state, fun = ()=>{})=>this.addFun(state, fun);
+        this.node.del = (fun = ()=>{})=>this.delFun(fun);
     	// this.node.add = (name, time)=>{
      //        if (!name) {
      //            return this.myAct(time);
@@ -159,7 +159,7 @@ cc.Class({
         }
     },
 
-    addFun: function (state) {
+    addFun: function (state, fun) {
         if (!state) {
             state = this.showData;
         }
@@ -182,10 +182,10 @@ cc.Class({
             cc.log(arr[i].node, arr[i].active);
             cc.log(arr[i]);
         }
-        dyl.run(arr, ()=>cc.log("run addFun"));
+        dyl.run(fun, arr);
     },
 
-    delFun: function () {
+    delFun: function (fun) {
         if (this.showData === "default") {
             return this.node.active = false;
         }
@@ -196,6 +196,7 @@ cc.Class({
         }
         dyl.run(arr, ()=>{
             this.node.active = false;
+            fun();
         })
     },
 
