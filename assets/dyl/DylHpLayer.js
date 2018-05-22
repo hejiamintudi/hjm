@@ -2,6 +2,7 @@ cc.Class({
     extends: cc.Component,
     editor: {
         menu: "dyl/飙血",
+        inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },
 
     __preload: function () {

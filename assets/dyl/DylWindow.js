@@ -37,7 +37,7 @@ let NodeDataArr = cc.Class({
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/弹窗-保存状态",
+        menu: "dyl/弹窗",
         executeInEditMode: true,
         inspector: 'packages://dyl-window/DylWindow.js',
     },

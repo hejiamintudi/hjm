@@ -715,6 +715,85 @@ window.initDylFun = function (cryptoJS) {
         }
         return delFun;
     };
+
+    dyl.button = function (js) {
+        var setButton = function (name, node) {
+            var _scale = node.getScale();
+            node.on('touchstart', function ( event ) {
+                node.setScale(0.92 * _scale);
+            });  
+            node.on('touchend', function ( event ) {
+                node.setScale(_scale);
+                js[name]();
+            });  
+            node.on('touchcancel', function ( event ) {
+                node.setScale(_scale);
+            }); 
+        };
+        var arr = js.node.getChildren();
+        for (var i = arr.length - 1; i >= 0; i--) {
+            var name = arr[i].name;
+            if (typeof js[name] === "function") {
+                setButton(name, arr[i]);
+            }
+        }
+    };
+
+    dyl.load = function (...arg) { //动态加载节点，参数方式 path arr fun ：path fun ：arr fun
+        var getPath = function (str) {
+            str = str.split(' ').join('/');
+            str = str.split('.').join('/');
+            str = str.split('_').join('/');
+            str = str.split('-').join('/');
+            str = str.split(',').join('/');
+            return str;
+        }
+        if (arg.length === 2 && typeof arg[0] === "string" && typeof arg[1] === "function") {
+            var path = getPath(arg[0]);
+            cc.loader.loadRes(path, function (err, prefab) {
+                if (err) {
+                    cc.error(err);
+                }
+                arg[1](cc.instantiate(prefab));
+            });
+            return;
+        }
+        var pathArr = null;
+        var fun = null;
+        if (arg.length === 2 && Array.isArray(arg[0]) && typeof arg[1] === "function") {
+            fun = arg[1];
+            pathArr = arg[0];
+        }
+        else if (arg.length === 3 && typeof arg[0] === "string" && Array.isArray(arg[1]) && typeof arg[2] === "function"){
+            fun = arg[2];
+            pathArr = arg[1];
+            for (var i = pathArr.length - 1; i >= 0; i--) {
+                pathArr[i] = arg[0] + "/" + pathArr[i];
+            }
+        }
+        else {
+            return cc.error("dyl.load 参数有错");
+        }
+        var nodeArr = [];
+        var num = pathArr.length;
+        var loadFun = function (i) {
+            var path = getPath(pathArr[i]);
+            var id = i;
+            cc.loader.loadRes(path, function (err, prefab) {
+                if (err) {
+                    cc.error(err);
+                }
+                nodeArr[id] = cc.instantiate(prefab);
+                cc.log(id, nodeArr[id]);
+                if (!(--num)) {
+                    arg[2](nodeArr);
+                }
+            });
+        }
+        for (var i = pathArr.length - 1; i >= 0; i--) {
+            loadFun(i);
+        }
+    };  
 };
 
 if (window.initHjmDataFun && window.initHjmFun && window.iscryptoJS) {

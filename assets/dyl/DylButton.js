@@ -68,7 +68,7 @@ cc.Class({
         let _scale = this.node.getScale();
         this.node.on('touchstart', function ( event ) {
             // self.node.color = cc.color(125, 125, 125);
-            self.node.setScale(0.8 * _scale);
+            self.node.setScale(0.92 * _scale);
         });  
         this.node.on('touchend', function ( event ) {
             // self.node.color = _color;
