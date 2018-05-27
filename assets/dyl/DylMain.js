@@ -29,7 +29,7 @@ cc.Class({
         inspector: 'packages://dyl-main/DylMain.js',
     },
     properties: {
-    	// rand: 0,
+        // rand: 0,
         // isBindNode: false,
         touch: "", 
         // run: false,
@@ -42,11 +42,11 @@ cc.Class({
             displayName: "物理"
         },
         isShowDebug: {
-        	default: false,
+            default: false,
             displayName: "调试"
         },
         gravity: {
-        	default: cc.p(0, -320),
+            default: cc.p(0, -320),
             displayName: "重力"
         },
 
@@ -158,7 +158,7 @@ cc.Class({
         //     this.setRun();
         // }
         // if (this.rand) {
-        // 	this.setRand();
+        //  this.setRand();
         // }
     },
 
@@ -205,7 +205,7 @@ cc.Class({
 
 
     // setLoad: function () {
-    // 	this.__loadEnd = false;
+    //  this.__loadEnd = false;
     //     let arr = dyl[this.loadData];
     //     let data = {};
     //     let ans = [];
@@ -214,13 +214,13 @@ cc.Class({
     //     let loadFunArr = [];
 
     //     this.node.load = (fun)=>{
-    //     	if (this.__loadEnd) {
-    //     		return fun(ans);
-    //     	}
-    //     	else {
-    //         	loadFunArr.push(fun);
-    //     	}
-    //     	return;
+    //      if (this.__loadEnd) {
+    //          return fun(ans);
+    //      }
+    //      else {
+    //          loadFunArr.push(fun);
+    //      }
+    //      return;
     //     }
 
     //     let endLoad = ()=>{
@@ -521,21 +521,21 @@ cc.Class({
     },
 
     setRand: function () {
-    	let __randNum = this.rand;
-    	let maxNum = 4671341;
-    	this.node.rand = function (n) {
-    		__randNum = (30853 * __randNum + 253) % maxNum;
-    		let r = __randNum / maxNum;
-    		if (n) {
-    			return Math.floor(r * n);
-    		}
-    		else {
-    			return r;
-    		}
-    	}
-    	this.node.rand.set = function (num) {
-    		__randNum = num;
-    	}
+        let __randNum = this.rand;
+        let maxNum = 4671341;
+        this.node.rand = function (n) {
+            __randNum = (30853 * __randNum + 253) % maxNum;
+            let r = __randNum / maxNum;
+            if (n) {
+                return Math.floor(r * n);
+            }
+            else {
+                return r;
+            }
+        }
+        this.node.rand.set = function (num) {
+            __randNum = num;
+        }
     },
 
     // setAct: function () {
