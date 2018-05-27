@@ -24,7 +24,7 @@ var getLab = function getLab(node) {
         tab[node.name] = node;
     } else {
         var stringArr = name.split("_");
-        if (stringArr[0] === "hjm") {
+        if (stringArr[0] === "hjm" && stringArr.length !== 1) {
             tab[stringArr[1]].lab = node.getComponent(cc.Label);
             tab[stringArr[1]].lab.string = String(tab[stringArr[1]].get());
         }

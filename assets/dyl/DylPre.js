@@ -477,14 +477,14 @@ window.initDylFun = function (cryptoJS) {
             };
             return fun;
         };
-        var createJsFun = function createJsFun(act, endFun) {
-            // let fun = endFun;
-            var fun = function fun() {
-                self.node.js[act]();
-                endFun();
-            };
-            return fun;
-        };
+        // var createJsFun = function createJsFun(act, endFun) {
+        //     // let fun = endFun;
+        //     var fun = function fun() {
+        //         self.node.js[act]();
+        //         endFun();
+        //     };
+        //     return fun;
+        // };
         var createArr = function createArr(act, endFun) {
             var fun = function fun() {
                 // let counter = dyl.counter(endFun);
@@ -571,15 +571,16 @@ window.initDylFun = function (cryptoJS) {
                 return createFun(act, endFun);
             } else if (typeof act === "number") {
                 return createDelay(act, endFun);
-            } else if (typeof act === "string") {
-                return createJsFun(act, endFun);
-            } else if (Array.isArray(act)) {
+            }  else if (Array.isArray(act)) {
                 return createArr(act, endFun);
             } else if (act.node) {
                 return createOther(act, endFun);
             } else {
                 return createMove(act, endFun);
             }
+            // else if (typeof act === "string") {
+            //     return createJsFun(act, endFun);
+            // }
         };
         for (var i = arguments.length - 1; i > endId; i--) {
             // cc.log("arg", i);
@@ -794,6 +795,45 @@ window.initDylFun = function (cryptoJS) {
             loadFun(i);
         }
     };  
+
+    // dyl.act = function (node, type, ...arr) {
+    //     var resetArg = function (str) { //把变量统一变回对象
+    //         if (arr.length < 2) {
+    //             return arr[0];
+    //         }
+    //         return cc[str](...arr);
+    //     }
+    //     var t1 = 0.1;
+    //     var t2 = 0.2;
+    //     var act1 = null;
+    //     var act2 = null;
+    //     if (type === "moveTo") {
+    //         var ori = node.getPosition();
+    //         act1 = cc.moveTo(t1, resetArg("p"));
+    //         act2 = cc.moveTo(t2, ori);
+    //     }
+    //     else if (type === "fadeTo") {
+    //         var ori = node.opacity;
+    //         act1 = cc.fadeTo(t1, arr[0]);
+    //         act2 = cc.fadeTo(t2, ori);
+    //     }
+    //     else if (type === "tintTo") {
+    //         var ori = node.color;
+    //         act1 = cc.tintTo(t1, resetArg("color"));
+    //         act2 = cc.tintTo(t2, ori);
+    //     }
+    //     else if (type === "scaleTo") {
+    //         var oriX = node.scaleX;
+    //         var oriY = node.scaleY;
+    //         act1 = cc.scaleTo(t1, ...arr);
+    //         act2 = cc.scaleTo(t2, oriX, oriY);
+    //     }
+    //     else {
+    //         cc.error("dyl.act 这种动作特效，还没有定义", type);
+    //     }
+    //     var seq = cc.sequence(act1, act2);
+    //     node.runAction(seq);
+    // };
 };
 
 if (window.initHjmDataFun && window.initHjmFun && window.iscryptoJS) {
