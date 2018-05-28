@@ -1,4 +1,3 @@
-cc.log("wuli");
 cc.Class({
     extends: cc.Component,
     editor: {

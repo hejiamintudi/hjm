@@ -477,14 +477,15 @@ window.initDylFun = function (cryptoJS) {
             };
             return fun;
         };
-        // var createJsFun = function createJsFun(act, endFun) {
-        //     // let fun = endFun;
-        //     var fun = function fun() {
-        //         self.node.js[act]();
-        //         endFun();
-        //     };
-        //     return fun;
-        // };
+        var createLogFun = function createLogFun(act, endFun) {
+            // let fun = endFun;
+            var fun = function fun() {
+                // self.node.js[act]();
+                cc.log(act);
+                endFun();
+            };
+            return fun;
+        };
         var createArr = function createArr(act, endFun) {
             var fun = function fun() {
                 // let counter = dyl.counter(endFun);
@@ -575,12 +576,12 @@ window.initDylFun = function (cryptoJS) {
                 return createArr(act, endFun);
             } else if (act.node) {
                 return createOther(act, endFun);
+            } else if (typeof act === "string") {
+                return createLogFun(act, endFun);
             } else {
                 return createMove(act, endFun);
             }
-            // else if (typeof act === "string") {
-            //     return createJsFun(act, endFun);
-            // }
+            
         };
         for (var i = arguments.length - 1; i > endId; i--) {
             // cc.log("arg", i);
@@ -645,7 +646,7 @@ window.initDylFun = function (cryptoJS) {
             childCounter();
         };
 
-        var run = function run() {
+        var run = function run(branch) {
             //行动
             if (counterArr.length > 0) {
                 return runChild();
@@ -659,24 +660,48 @@ window.initDylFun = function (cryptoJS) {
                 return;
             }
             if (typeof name === "string") {
+                if (branch) {
+                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了")
+                }
                 //代表函数
+                if (!js[name]) { //如果没有那就跳到下一个函数，有时候用来分支而已，未必是函数
+                    return counter();
+                }
                 return js[name](counter);
             }
             else if (typeof name === "function") {
+                if (branch) {
+                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了")
+                }
                 return name(counter);
             }
 
-            ///下面是子对象了
-            for (var i in name) {
-                var next = js[i](counter);
-                nextArr = name[i][next];
-                if (!nextArr) {
-                    //找不到了，就是相当于结束流程
-                    return;
-                }
-                counterId = 0;
-                counter();
+            //下面是数组，代表分支
+            if (!branch) {
+                return cc.error("数组是分支，这里应该有一个表示分支的参数")
             }
+            for (var i = counterId - 1; i < nextArr.length; i++) {
+                var arr = nextArr[i];
+                if (!Array.isArray(arr)) {
+                    return cc.error("dyl.process 这里是分支内容，后面的参数应该都是数组，这里参数不对");
+                }
+                if (arr[0] === branch) {
+                    nextArr = arr;
+                    counterId = 0;
+                    return counter();
+                }
+            }
+            // ///下面是子对象了
+            // for (var i in name) {
+            //     var next = js[i](counter);
+            //     nextArr = name[i][next];
+            //     if (!nextArr) {
+            //         //找不到了，就是相当于结束流程
+            //         return;
+            //     }
+            //     counterId = 0;
+            //     counter();
+            // }
         };
 
         var addChild = function addChild(childJs, name, arrr) {
@@ -690,7 +715,11 @@ window.initDylFun = function (cryptoJS) {
         counter = function counter(childJs, name) {
             if (!childJs) {
                 run();
-            } else {
+            } 
+            else if (typeof childJs === "string") {
+                run(childJs);
+            }
+            else {
                 for (var _len = arguments.length, arrr = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
                     arrr[_key - 2] = arguments[_key];
                 }
@@ -704,6 +733,104 @@ window.initDylFun = function (cryptoJS) {
 
         counter();
     };
+
+    // dyl.process = function (js, arr) {
+    //     // var isLog = Math.floor(cc.random0To1() * 100) + 4;
+    //     var isLog = false;
+
+    //     var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    //     var counterId = 0;
+    //     var counterArr = [];
+    //     var nextArr = arr;
+    //     var counter = null;
+
+    //     var runChild = function runChild() {
+    //         var i = 0;
+    //         var childCounter = function childCounter() {
+    //             var data = counterArr[i++];
+    //             if (isLog) {
+    //                 cc.log(isLog, "childCounter", data);
+    //             }
+    //             if (!data) {
+    //                 counterArr.length = 0;
+    //                 return counter();
+    //             }
+    //             var childJs = data.childJs,
+    //                 name = data.name,
+    //                 arrr = data.arrr;
+
+    //             // childJs[name].apply(childJs, [childCounter].concat(_toConsumableArray(arrr)));
+    //             if (typeof name === "function") {
+    //                 name.apply(undefined, [childCounter].concat(_toConsumableArray2(arrr)));
+    //             } else if (typeof name === "string") {
+    //                 childJs[name].apply(childJs, [childCounter].concat(_toConsumableArray(arrr)));
+    //             } else {
+    //                 cc.warn("dyl process 子进程的函数参数出错了，不是函数，也不是字符串");
+    //             }
+    //         };
+    //         childCounter();
+    //     };
+
+    //     var run = function run() {
+    //         //行动
+    //         if (counterArr.length > 0) {
+    //             return runChild();
+    //         }
+    //         var name = nextArr[counterId++];
+    //         if (isLog) {
+    //             cc.log(isLog, "counter", name);
+    //         }
+    //         if (!name) {
+    //             //结束了
+    //             return;
+    //         }
+    //         if (typeof name === "string") {
+    //             //代表函数
+    //             return js[name](counter);
+    //         }
+    //         else if (typeof name === "function") {
+    //             return name(counter);
+    //         }
+
+    //         ///下面是子对象了
+    //         for (var i in name) {
+    //             var next = js[i](counter);
+    //             nextArr = name[i][next];
+    //             if (!nextArr) {
+    //                 //找不到了，就是相当于结束流程
+    //                 return;
+    //             }
+    //             counterId = 0;
+    //             counter();
+    //         }
+    //     };
+
+    //     var addChild = function addChild(childJs, name, arrr) {
+    //         counterArr.push({
+    //             childJs: childJs,
+    //             name: name,
+    //             arrr: arrr
+    //         });
+    //     };
+
+    //     counter = function counter(childJs, name) {
+    //         if (!childJs) {
+    //             run();
+    //         } else {
+    //             for (var _len = arguments.length, arrr = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    //                 arrr[_key - 2] = arguments[_key];
+    //             }
+
+    //             addChild(childJs, name, arrr);
+    //         }
+    //     };
+    //     for (var i in tab) {
+    //         counter[i] = tab[i];
+    //     }
+
+    //     counter();
+    // };
 
     dyl.update = function (fun) {
         fun.id = updateFunArr.length;
