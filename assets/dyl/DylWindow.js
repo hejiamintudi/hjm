@@ -89,7 +89,7 @@ cc.Class({
     },
 
     _myInit: function() {
-        cc.log("_myInit");
+        // cc.log("_myInit");
         this.node.add = (state, fun = ()=>{})=>this.addFun(state, fun);
         this.node.del = (fun = ()=>{})=>this.delFun(fun);
     	// this.node.add = (name, time)=>{
@@ -109,7 +109,7 @@ cc.Class({
 
     getAction: function (from, to) {
         if (!to.active) {
-            cc.log("return 0");
+            // cc.log("return 0");
             return [];
         }
         let time = 0;
@@ -125,7 +125,7 @@ cc.Class({
         getTime("scaleY", 0.7);
         getTime("opacity", 150);
         if (time < 0.0001) {
-            cc.log("return 1");
+            // cc.log("return 1");
             return [];
         }
         let arr = [];
@@ -138,7 +138,7 @@ cc.Class({
         addAct(cc.rotateTo(time, to.rotation));
         addAct(cc.scaleTo(time, to.scaleX, to.scaleY));
         addAct(cc.fadeTo(time, to.opacity));
-        cc.log("return 2");
+        // cc.log("return 2");
         return arr;
     },
 
@@ -167,7 +167,7 @@ cc.Class({
             this.showData = state;
         }
         if (state === "default") {
-            cc.log("default");
+            // cc.log("default");
             return this._read("default");
         }
         this._read("default");
@@ -177,11 +177,11 @@ cc.Class({
         for (var i = dataArr.length - 1; i >= 0; i--) {
             arr.push(...this.getAction(this.defaultData.arr[i], dataArr[i]));
         }
-        for (let i = 0; i < arr.length; i++) {
-            cc.log("...", i, "...");
-            cc.log(arr[i].node, arr[i].active);
-            cc.log(arr[i]);
-        }
+        // for (let i = 0; i < arr.length; i++) {
+        //     cc.log("...", i, "...");
+        //     cc.log(arr[i].node, arr[i].active);
+        //     cc.log(arr[i]);
+        // }
         dyl.run(fun, arr);
     },
 

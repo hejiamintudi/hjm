@@ -126,14 +126,30 @@ window.initDylFun = function (cryptoJS) {
             return ans;
         };
         map.find = function (value) {
-            for (var y = 0; y < this.h; y++) {
-                for (var x = 0; x < this.w; x++) {
-                    if (this[y][x] === value) {
-                        return cc.p(x, y);
+            var ansArr = [];
+            if (typeof value === "function") {
+                var fun = value;
+                for (var y = 0; y < this.h; y++) {
+                    for (var x = 0; x < this.w; x++) {
+                        if (this[y][x] && fun(this[y][x])) {
+                            ansArr.push(cc.p(x, y));
+                        }
                     }
                 }
             }
-            return false;
+            else {
+                for (var y = 0; y < this.h; y++) {
+                    for (var x = 0; x < this.w; x++) {
+                        if (this[y][x] === value) {
+                            ansArr.push(cc.p(x, y));
+                        }
+                    }
+                }
+            }
+            if (!ansArr.length) {
+                return null;
+            }
+            return ansArr;
         };
         map.run = function (fun) {
             if (typeof fun !== "function") {
@@ -922,6 +938,24 @@ window.initDylFun = function (cryptoJS) {
             loadFun(i);
         }
     };  
+
+//100 * 100  的物体 dyl.shake(2, 5, 5, hjm._tz);
+    dyl.shake = function (time, w, h, node) {
+        var x = dyl.rand() * 50 + 30;
+        var y = dyl.rand() * 50 + 30;
+        cc.log(x, y);
+        var t = 0;
+        var fun = function (dt) {
+            node.setPosition(w * Math.sin(x * t), h * Math.sin(y * t))
+            t += dt;
+            if (t >= time) {
+                node.setPosition(0, 0);
+                return false;
+            }
+            return true;
+        }
+        dyl.update(fun);
+    };
 
     // dyl.act = function (node, type, ...arr) {
     //     var resetArg = function (str) { //把变量统一变回对象
