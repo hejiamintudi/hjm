@@ -470,143 +470,143 @@ window.initDylFun = function (cryptoJS) {
         return arr;
     };
 
-    dyl.run = function () {
-        var self = this;
-        // this.node.run = function () {
-        var root = function root() {};
-        var node0 = arguments[0];
-        var endId = 0;
-        if (node0.parent && node0.getChildren) {
-            if (!node0.active) {
-                cc.warn("dyl.run node的active不是true");
-            }
-            endId = 0;
-        } else {
-            node0 = cc.director.getScene().getChildren()[0];
-            endId = -1;
-        }
-        var createFun = function createFun(act, endFun) {
-            // let fun = endFun;
-            var fun = function fun() {
-                act();
-                endFun();
-            };
-            return fun;
-        };
-        var createLogFun = function createLogFun(act, endFun) {
-            // let fun = endFun;
-            var fun = function fun() {
-                // self.node.js[act]();
-                cc.log(act);
-                endFun();
-            };
-            return fun;
-        };
-        var createArr = function createArr(act, endFun) {
-            var fun = function fun() {
-                // let counter = dyl.counter(endFun);
-                var arr = act;
-                arr.push(function () {
-                    return null;
-                });
-                var counterNum = arr.length;
-                var delFun = function delFun() {
-                    counterNum--;
-                    if (counterNum <= 0) {
-                        endFun();
-                    }
-                };
-                for (var i = 0; i < arr.length; i++) {
-                    create(arr[i], function () {
-                        // counter.del();
-                        delFun();
-                    })();
-                }
-            };
-            return fun;
-        };
-        var createOther = function createOther(act, endFun) {
-            // cc.log("createOther", act.node);
-            var fun = function fun() {
-                var node = act.node;
-                if (node.node) {
-                    node = node.node;
-                    if (!node.active) {
-                        cc.warn("dylPre run createOther node active is", node.active);
-                    }
-                }
-                if (act.add && act.add > 0) {
-                    act.easing(cc.easeIn(act.add));
-                } else if (act.add && act.add < 0) {
-                    var inout = cc.easeInOut(-act.add);
-                    // cc.log("iiiiii", -act.add, inout);
-                    act.easing(cc.easeInOut(-act.add));
-                }
-                var cfun = cc.callFunc(function () {
-                    endFun();
-                });
-                var seq = cc.sequence(act, cfun);
-                node.runAction(seq);
-            };
-            return fun;
-        };
-        var createMove = function createMove(act, endFun) {
-            var fun = function fun() {
-                var node = node0;
-                if (node.node) {
-                    node = node.node;
-                }
-                if (act.add && act.add > 0) {
-                    act.easing(cc.easeIn(act.add));
-                } else if (act.add && act.add < 0) {
-                    var inout = cc.easeInOut(-act.add);
-                    // cc.log("iiiiii", -act.add, inout);
-                    act.easing(cc.easeInOut(-act.add));
-                }
-                var cfun = cc.callFunc(endFun);
-                var seq = cc.sequence(act, cfun);
-                node.runAction(seq);
-            };
-            return fun;
-        };
-        var createDelay = function createDelay(act, endFun) {
-            var fun = function fun() {
-                var node = node0;
-                if (node.node) {
-                    node = node.node;
-                }
-                var delay = cc.delayTime(act);
-                var cfun = cc.callFunc(endFun);
-                var seq = cc.sequence(delay, cfun);
-                node.runAction(seq);
-            };
-            return fun;
-        };
-        var create = function create(act, endFun) {
-            // cc.log(act, act.node);
-            if (typeof act === "function") {
-                return createFun(act, endFun);
-            } else if (typeof act === "number") {
-                return createDelay(act, endFun);
-            }  else if (Array.isArray(act)) {
-                return createArr(act, endFun);
-            } else if (act.node) {
-                return createOther(act, endFun);
-            } else if (typeof act === "string") {
-                return createLogFun(act, endFun);
-            } else {
-                return createMove(act, endFun);
-            }
+    // dyl.run = function () {
+    //     var self = this;
+    //     // this.node.run = function () {
+    //     var root = function root() {};
+    //     var node0 = arguments[0];
+    //     var endId = 0;
+    //     if (node0.parent && node0.getChildren) {
+    //         if (!node0.active) {
+    //             cc.warn("dyl.run node的active不是true");
+    //         }
+    //         endId = 0;
+    //     } else {
+    //         node0 = cc.director.getScene().getChildren()[0];
+    //         endId = -1;
+    //     }
+    //     var createFun = function createFun(act, endFun) {
+    //         // let fun = endFun;
+    //         var fun = function fun() {
+    //             act();
+    //             endFun();
+    //         };
+    //         return fun;
+    //     };
+    //     var createLogFun = function createLogFun(act, endFun) {
+    //         // let fun = endFun;
+    //         var fun = function fun() {
+    //             // self.node.js[act]();
+    //             cc.log(act);
+    //             endFun();
+    //         };
+    //         return fun;
+    //     };
+    //     var createArr = function createArr(act, endFun) {
+    //         var fun = function fun() {
+    //             // let counter = dyl.counter(endFun);
+    //             var arr = act;
+    //             arr.push(function () {
+    //                 return null;
+    //             });
+    //             var counterNum = arr.length;
+    //             var delFun = function delFun() {
+    //                 counterNum--;
+    //                 if (counterNum <= 0) {
+    //                     endFun();
+    //                 }
+    //             };
+    //             for (var i = 0; i < arr.length; i++) {
+    //                 create(arr[i], function () {
+    //                     // counter.del();
+    //                     delFun();
+    //                 })();
+    //             }
+    //         };
+    //         return fun;
+    //     };
+    //     var createOther = function createOther(act, endFun) {
+    //         // cc.log("createOther", act.node);
+    //         var fun = function fun() {
+    //             var node = act.node;
+    //             if (node.node) {
+    //                 node = node.node;
+    //                 if (!node.active) {
+    //                     cc.warn("dylPre run createOther node active is", node.active);
+    //                 }
+    //             }
+    //             if (act.add && act.add > 0) {
+    //                 act.easing(cc.easeIn(act.add));
+    //             } else if (act.add && act.add < 0) {
+    //                 var inout = cc.easeInOut(-act.add);
+    //                 // cc.log("iiiiii", -act.add, inout);
+    //                 act.easing(cc.easeInOut(-act.add));
+    //             }
+    //             var cfun = cc.callFunc(function () {
+    //                 endFun();
+    //             });
+    //             var seq = cc.sequence(act, cfun);
+    //             node.runAction(seq);
+    //         };
+    //         return fun;
+    //     };
+    //     var createMove = function createMove(act, endFun) {
+    //         var fun = function fun() {
+    //             var node = node0;
+    //             if (node.node) {
+    //                 node = node.node;
+    //             }
+    //             if (act.add && act.add > 0) {
+    //                 act.easing(cc.easeIn(act.add));
+    //             } else if (act.add && act.add < 0) {
+    //                 var inout = cc.easeInOut(-act.add);
+    //                 // cc.log("iiiiii", -act.add, inout);
+    //                 act.easing(cc.easeInOut(-act.add));
+    //             }
+    //             var cfun = cc.callFunc(endFun);
+    //             var seq = cc.sequence(act, cfun);
+    //             node.runAction(seq);
+    //         };
+    //         return fun;
+    //     };
+    //     var createDelay = function createDelay(act, endFun) {
+    //         var fun = function fun() {
+    //             var node = node0;
+    //             if (node.node) {
+    //                 node = node.node;
+    //             }
+    //             var delay = cc.delayTime(act);
+    //             var cfun = cc.callFunc(endFun);
+    //             var seq = cc.sequence(delay, cfun);
+    //             node.runAction(seq);
+    //         };
+    //         return fun;
+    //     };
+    //     var create = function create(act, endFun) {
+    //         // cc.log(act, act.node);
+    //         if (typeof act === "function") {
+    //             return createFun(act, endFun);
+    //         } else if (typeof act === "number") {
+    //             return createDelay(act, endFun);
+    //         }  else if (Array.isArray(act)) {
+    //             return createArr(act, endFun);
+    //         } else if (act.node) {
+    //             return createOther(act, endFun);
+    //         } else if (typeof act === "string") {
+    //             return createLogFun(act, endFun);
+    //         } else {
+    //             return createMove(act, endFun);
+    //         }
             
-        };
-        for (var i = arguments.length - 1; i > endId; i--) {
-            // cc.log("arg", i);
-            var act = arguments[i];
-            root = create(act, root);
-        }
-        // cc.log("root", root);
-        root();
-    };
+    //     };
+    //     for (var i = arguments.length - 1; i > endId; i--) {
+    //         // cc.log("arg", i);
+    //         var act = arguments[i];
+    //         root = create(act, root);
+    //     }
+    //     // cc.log("root", root);
+    //     root();
+    // };
 
     dyl.data = function (key, node) {
         var arr = key.split(".");
@@ -957,6 +957,49 @@ window.initDylFun = function (cryptoJS) {
         dyl.update(fun);
     };
 
+//这是操作缓冲类，主要处理那种，上一个动作还没有做完，就出现下一个输入的情况。这时候可以把这个输入保存，等做完动作再运行
+    dyl.buffer = function (actFun, time) {
+        // if (typeof actFun !== "function") {
+        //     return cc.error("dyl.buffer 参数有错");
+        // }
+        if (!time) {
+            time = 0;
+        }
+        time = 1000 * time;
+        //data 有三种状态 "ing": 正在运行中并且没有新动作加入 null：空闲中 其他：保存的动作
+        var buffer = { data: null };
+        var id = 0; //这个是唯一标记，防止重复执行的
+        buffer.add = function (data) {
+            if (!this.data) { //空闲中，可以直接执行，不用保存动作
+                this.data = "ing";
+                return actFun(data);
+            }
+            this.data = data;
+            var i = ++id;
+            setTimeout(function () {
+                if (i !== id) {
+                    return;
+                }
+                buffer.data = null;
+            }, time);
+        }
+
+        buffer.del = function (str) {
+            ++id;
+            // cc.log("del", str);
+            if (this.data === "ing") {
+                this.data = null;
+            }
+            else if (this.data) {
+                var tmpData = this.data;
+                this.data = "ing";
+                actFun(tmpData);
+            }
+        }
+
+        return buffer;
+    };
+
     // dyl.act = function (node, type, ...arr) {
     //     var resetArg = function (str) { //把变量统一变回对象
     //         if (arr.length < 2) {
@@ -998,7 +1041,6 @@ window.initDylFun = function (cryptoJS) {
 };
 
 if (window.initHjmDataFun && window.initHjmFun && window.iscryptoJS) {
-    cc.log("init dyl");
     window.initDylFun(window.isCryptoJS);
     window.initHjmFun();
     window.initHjmDataFun();

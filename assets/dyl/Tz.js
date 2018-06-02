@@ -56,6 +56,7 @@ window.tz = function (node, ...argArr) {
 			let tmpEndFun = endFun;
 			let cfun = cc.callFunc(function () {
 				if (isDebug) {
+					cc.log(typeof act.actName);
 					cc.log(act.actName);
 				}
 				tmpEndFun();
@@ -79,7 +80,10 @@ window.tz = function (node, ...argArr) {
 			}
 		}
 		if (typeof data === "function") {
-			act = cc.callFunc(data);
+			let fun = ()=>{
+				data();
+			}
+			act = cc.callFunc(fun);
 		}
 		else if (typeof data === "number") {
 			act = cc.delayTime(data);
