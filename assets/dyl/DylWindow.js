@@ -107,7 +107,42 @@ cc.Class({
     	// }
     },
 
-    getAction: function (from, to) {
+    // getAction: function (from, to) {
+    //     if (!to.active) {
+    //         // cc.log("return 0");
+    //         return [];
+    //     }
+    //     let time = 0;
+    //     let fun = (t)=>{
+    //         time = (time > t) ? time : t;
+    //     }
+    //     let getTime = (name, r)=>{
+    //         fun(Math.abs(to[name] - from[name]) * 0.4 / r);
+    //     }
+    //     fun(to.p.sub(from.p).mag() * 0.4 / 540);
+    //     getTime("rotation", 60);
+    //     getTime("scaleX", 0.7);
+    //     getTime("scaleY", 0.7);
+    //     getTime("opacity", 150);
+    //     if (time < 0.0001) {
+    //         // cc.log("return 1");
+    //         return [];
+    //     }
+    //     let arr = [];
+    //     let addAct = (act)=>{
+    //         act.easing(cc.easeSineOut());
+    //         act.node = to.node;
+    //         arr.push(act);
+    //     }
+    //     addAct(cc.moveTo(time, to.p));
+    //     addAct(cc.rotateTo(time, to.rotation));
+    //     addAct(cc.scaleTo(time, to.scaleX, to.scaleY));
+    //     addAct(cc.fadeTo(time, to.opacity));
+    //     // cc.log("return 2");
+    //     return arr;
+    // },
+
+    getAction: function (seq, from, to) {
         if (!to.active) {
             // cc.log("return 0");
             return [];
@@ -128,18 +163,23 @@ cc.Class({
             // cc.log("return 1");
             return [];
         }
-        let arr = [];
-        let addAct = (act)=>{
-            act.easing(cc.easeSineOut());
-            act.node = to.node;
-            arr.push(act);
-        }
-        addAct(cc.moveTo(time, to.p));
-        addAct(cc.rotateTo(time, to.rotation));
-        addAct(cc.scaleTo(time, to.scaleX, to.scaleY));
-        addAct(cc.fadeTo(time, to.opacity));
+        // let arr = [];
+        // let addAct = (act)=>{
+        //     act.easing(cc.easeSineOut());
+        //     act.node = to.node;
+        //     arr.push(act);
+        // }
+        // addAct(cc.moveTo(time, to.p));
+        // addAct(cc.rotateTo(time, to.rotation));
+        // addAct(cc.scaleTo(time, to.scaleX, to.scaleY));
+        // addAct(cc.fadeTo(time, to.opacity));
+        // return arr;
+
+        seq.moveTo(to.node, time, to.p)
+           .rotateTo(to.node, time, to.rotation)
+           .scaleTo(to.node, time, to.scaleX, to.scaleY)
+           .fadeTo(to.node, time, to.opacity);
         // cc.log("return 2");
-        return arr;
     },
 
     notActChange: function (dataArr) {
@@ -173,16 +213,18 @@ cc.Class({
         this._read("default");
         let dataArr = this.data[this.stateArr.indexOf(state)].arr;
         this.notActChange(dataArr);
-        let arr = [];
-        for (var i = dataArr.length - 1; i >= 0; i--) {
-            arr.push(...this.getAction(this.defaultData.arr[i], dataArr[i]));
-        }
-        // for (let i = 0; i < arr.length; i++) {
-        //     cc.log("...", i, "...");
-        //     cc.log(arr[i].node, arr[i].active);
-        //     cc.log(arr[i]);
+        // let arr = [];
+
+        // for (var i = dataArr.length - 1; i >= 0; i--) {
+        //     arr.push(...this.getAction(this.defaultData.arr[i], dataArr[i]));
         // }
-        dyl.run(fun, arr);
+        // dyl.run(fun, arr);
+        let seq = tz();
+        seq._();
+        for (var i = dataArr.length - 1; i >= 0; i--) {
+            this.getAction(seq, this.defaultData.arr[i], dataArr[i]);
+        }
+        seq._()();
     },
 
     delFun: function (fun) {
@@ -190,14 +232,21 @@ cc.Class({
             return this.node.active = false;
         }
         let dataArr = this.data[this.stateArr.indexOf(this.showData)].arr;
-        let arr = [];
+        // let arr = [];
+        // for (var i = dataArr.length - 1; i >= 0; i--) {
+        //     arr.push(...this.getAction(dataArr[i], this.defaultData.arr[i]));
+        // }
+        // dyl.run(arr, ()=>{
+        //     this.node.active = false;
+        //     fun();
+        // })
+
+        let seq = tz();
+        seq._();
         for (var i = dataArr.length - 1; i >= 0; i--) {
-            arr.push(...this.getAction(dataArr[i], this.defaultData.arr[i]));
+            this.getAction(seq, dataArr[i], this.defaultData.arr[i]);
         }
-        dyl.run(arr, ()=>{
-            this.node.active = false;
-            fun();
-        })
+        seq._()();
     },
 
     myAct: function(time) {

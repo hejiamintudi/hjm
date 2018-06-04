@@ -4,7 +4,7 @@ var getNowTime = function () {
 };
 
 window.tz = function (node, ...argArr) {
-	let isDebug = true;
+	let isDebug = false;
 	let defaultNode = null;
 	if (typeof node === "object" && node.getChildren) {
 		defaultNode = node;
@@ -139,15 +139,42 @@ window.tz = function (node, ...argArr) {
         				node = defaultNode;
         			}
         			
-        			//////////////////////////// (下面这个缓冲暂时不做)
-        			if (typeof arr[arr.length - 1] === "string") {
-        				let hc = arr.pop();
+        			//////////////////////////// (下面这个缓冲)
+        			let ease = null;
+        			let easeType = arr[arr.length - 1];
+        			if (easeType === "in") {
+        				arr.pop();
+        				ease = cc.easeIn(2.0);
+        			}
+        			else if (easeType === "out") {
+        				arr.pop();
+        				ease = cc.easeOut(2.0);
+        			}
+        			else if (easeType === "inOut") {
+        				arr.pop();
+        				ease = cc.easeInOut(2.0);
+        			}
+        			else if (easeType === "backIn") {
+        				arr.pop();
+        				ease = cc.easeBackIn();
+        			}
+        			else if (easeType === "backOut") {
+        				arr.pop();
+        				ease = cc.easeBackOut();
+        			}
+        			else if (easeType === "backInOut") {
+        				arr.pop();
+        				ease = cc.easeBackInOut();
         			}
         			/////////////////////////////////////////
 
         			act = cc[actName](...arr);
         			act.node = node;
         			act.actName = actName;
+
+        			if (ease) {
+        				act.easing(ease);
+        			}
         		}
         		if (isChangeArr) {
         			if (sameArr) { // 这里准备结束同时运行数组

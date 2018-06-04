@@ -84,6 +84,7 @@ window._hjm1 = new Proxy({}, {
 });
 
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
+    ai = {};
     hjm = _hjm1;
     var tmp = Math.floor(cc.random0To1() * 9987617);
     dyl.setRand(tmp);
