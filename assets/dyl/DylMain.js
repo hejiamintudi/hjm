@@ -359,7 +359,7 @@ cc.Class({
             }
             let pos = fun(event);
             if (js[node.touch + "End"]) {
-                data = js[node.touch + "Up"](pos, data);
+                data = js[node.touch + "End"](pos, data);
                 return;
             }
             if (js[node.touch + "Up"]) {
@@ -379,7 +379,7 @@ cc.Class({
             }
             let pos = fun(event);
             if (js[node.touch + "End"]) {
-                data = js[node.touch + "Up"](pos, data);
+                data = js[node.touch + "End"](pos, data);
                 return;
             }
             if (js[node.touch + "Out"]) {
