@@ -50,12 +50,8 @@ cc.Class({
 
     },
 
-    onEnable: function () {
-        if (CC_EDITOR) {
-        }
-        else {
-            this.myInit();
-        }
+    __preload: function () {
+        this.myInit();
     },
 
     getTopNode: function () {
@@ -64,10 +60,12 @@ cc.Class({
 
     myInit: function () {
         let self = this;
-        let _color = this.node.color;
-        let _scale = this.node.getScale();
+        let _color = null;
+        let _scale = null;
         this.node.on('touchstart', function ( event ) {
             // self.node.color = cc.color(125, 125, 125);
+            _scale = self.node.getScale();
+            _color = self.node.color;
             self.node.setScale(0.92 * _scale);
         });  
         this.node.on('touchend', function ( event ) {
@@ -77,6 +75,7 @@ cc.Class({
         });  
         this.node.on('touchcancel', function ( event ) {
             // self.node.color = _color;
+            cc.log("touchcancel", _scale);
             self.node.setScale(_scale);
         }); 
     },
@@ -129,7 +128,8 @@ cc.Class({
         }
         else if (this.sceneType === "Restart") {
             this.clickFun();
-            return cc.director.loadScene(cc.director.getScene().name);
+            cc.director.loadScene(cc.director.getScene().name);
+            return;
         }
         else if (this.sceneType === "Popup") {
             this.clickFun();
@@ -170,6 +170,9 @@ cc.Class({
             // let fade = cc.fadeTo(0.3, 0);
             // let scale = cc.scaleTo(0.3, 2);
             // node.runAction(cc.sequence(cc.spawn(fade, scale), cfun));
+        }
+        else {
+            this.clickFun();
         }
     },
 

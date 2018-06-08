@@ -143,13 +143,14 @@ cc.Class({
     // },
 
     getAction: function (seq, from, to) {
-        if (!to.active) {
+        if (!to.node.active) {
             // cc.log("return 0");
             return [];
         }
         let time = 0;
         let fun = (t)=>{
             time = (time > t) ? time : t;
+            time = 0.1; // 暂时改为这个
         }
         let getTime = (name, r)=>{
             fun(Math.abs(to[name] - from[name]) * 0.4 / r);
@@ -228,6 +229,10 @@ cc.Class({
     },
 
     delFun: function (fun) {
+        if (!this.node.active) {
+            fun();
+            return;
+        }
         if (this.showData === "default") {
             return this.node.active = false;
         }
@@ -246,7 +251,10 @@ cc.Class({
         for (var i = dataArr.length - 1; i >= 0; i--) {
             this.getAction(seq, dataArr[i], this.defaultData.arr[i]);
         }
-        seq._()();
+        seq._()(()=>{
+            this.node.active = false;
+            fun();
+        })();
     },
 
     myAct: function(time) {

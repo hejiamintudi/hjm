@@ -22,7 +22,7 @@ cc.Class({
             let id = ++this.node["__labIsSaying" + name];
             this.node["__" + name] = str;
             let len = str.length;
-            let t = 0.2; //加载一个字的时间
+            let t = 0.1; //加载一个字的时间
             let allTime = 0;
             let fun = (dt)=>{
                 if (this.node["__labIsSaying" + name] !== id) {
