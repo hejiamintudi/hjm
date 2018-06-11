@@ -150,7 +150,7 @@ cc.Class({
         let time = 0;
         let fun = (t)=>{
             time = (time > t) ? time : t;
-            time = 0.1; // 暂时改为这个
+            // time = 0.1; // 暂时改为这个
         }
         let getTime = (name, r)=>{
             fun(Math.abs(to[name] - from[name]) * 0.4 / r);

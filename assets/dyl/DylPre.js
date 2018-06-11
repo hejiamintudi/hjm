@@ -52,6 +52,10 @@ cc.director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
 
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
     updateFunArr = [];
+    // dyl.setRand((cc.random0To1() * 10000 + 23) >> 0);
+    if (window.dyl) {
+        window.dyl.setRand((cc.random0To1() * 10000 + 23) >> 0);
+    }
 });
 
 window.initDylFun = function (cryptoJS) {
@@ -209,10 +213,20 @@ window.initDylFun = function (cryptoJS) {
             p.y = Math.floor(p.y);
             return p;
         };
+        map.set = function (nodeMap) {
+            var self = this;
+            this.run(function(p) {
+                var x = p.x;
+                var y = p.y;
+                if (nodeMap[y][x]) {
+                    nodeMap[y][x].setPosition(self[y][x]);
+                }
+            })
+        };
         return map;
     };
 
-    var __randNum = 23;
+    var __randNum = (cc.random0To1() * 10000 + 23) >> 0;
     dyl.setRand = function (num) {
         cc.log("seed", num);
         __randNum = num;
@@ -461,9 +475,12 @@ window.initDylFun = function (cryptoJS) {
         }, cc.director.getScene().getChildren()[0]);
     };
 
-    dyl.addDirArr = function () {
+    dyl.addDirArr = function (p) {
         // 499 5479 
-        var arr = [cc.p(0, 1), cc.p(0, -1), cc.p(1, 0), cc.p(-1, 0)];
+        // p = p ? p : cc.p(0, 0);
+        var x = p ? p.x : 0;
+        var y = p ? p.y : 0;
+        var arr = [cc.p(x, y + 1), cc.p(x, y - 1), cc.p(x + 1, y), cc.p(x - 1, y)];
         arr.sort(function () {
             return 0.5 - dyl.rand();
         });
