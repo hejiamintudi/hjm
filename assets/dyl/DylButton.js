@@ -15,10 +15,6 @@ cc.Class({
         inspector: 'packages://dyl-button/DylButton.js',
     },
     properties: {
-        // audio: {
-        //     default: null,
-        //     url: cc.AudioClip,
-        // },
         touchFun: {
             default: function () {
                 return new cc.Component.EventHandler();
@@ -87,9 +83,10 @@ cc.Class({
     },
 
     onClick: function () {
-        if (this.audio) {
-            cc.audioEngine.play("res/raw-assets/dyl/button.mp3", false, 1);
-        }
+        // if (this.audio) {
+            cc.audioEngine.play("res/raw-assets/resources/dyl/button.mp3", false, 1);
+            // cc.audioEngine.play(this.audio, false, 1);
+        // }
         // for (var i = this.clearArr.length - 1; i >= 0; i--) {
         //     let name = this.clearArr[i];
         //     dyl.save(name, null);
