@@ -120,6 +120,16 @@ window.initDylFun = function (cryptoJS) {
             if (!p) {
                 return false;
             }
+            if (value && value.__classname__ === "cc.Vec2") { //交换位置
+                let value1 = this.get(p);
+                let value2 = this.get(value);
+                if (value1 === false || value2 === false) {
+                    return cc.warn("有无效的位置");
+                }
+                this.set(p,     value2);
+                this.set(value, value1);
+                return true;
+            }
             if (p.x < 0 || p.y < 0 || p.x >= this.w || p.y >= this.h) {
                 // cc.log(p, this.w, this.h);
                 cc.warn("p不在地图上");
