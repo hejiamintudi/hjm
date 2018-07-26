@@ -653,7 +653,8 @@ window.initDylFun = function (cryptoJS) {
 
     dyl.process = function (js, arr) {
         // var isLog = Math.floor(cc.random0To1() * 100) + 4;
-        var isLog = false;
+        // var isLog = false;
+        var isLog = true;
 
         var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 

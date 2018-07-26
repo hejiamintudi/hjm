@@ -83,6 +83,7 @@ cc.Class({
     },
 
     _refresh: function () {
+        return;
         if (CC_EDITOR) {
             cc.Class.Attr.setClassAttr(this, 'isShowDebug', 'visible', this.isPhysics);
             // cc.log(2);
@@ -104,10 +105,10 @@ cc.Class({
         // dyl.hjm = ["lab1", "lab2", "lab3"];
         if (CC_EDITOR) {
             // setTimeout(()=>this._refresh(), 100);
-            if (!this.loadDataCallBack.target) {
-                this.loadDataCallBack.target = this.node;
-            }
-            this._refresh();
+            // if (!this.loadDataCallBack.target) {
+            //     this.loadDataCallBack.target = this.node;
+            // }
+            // this._refresh();
         }
         else {
             this.myInit();
