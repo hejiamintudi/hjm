@@ -48,7 +48,7 @@ var hjmInit = function hjmInit() {
     var node = cc.director.getScene().getChildren()[0];
     getLab(node);
     // if (isNaN(Number(node.name))) {
-    //     let tmp = Math.floor(cc.random0To1() * 9987617);
+    //     let tmp = Math.floor(Math.random() * 9987617);
     //     // cc.log("rand number is ", tmp);
     //     dyl.setRand(tmp);
     // }
@@ -86,7 +86,7 @@ window._hjm1 = new Proxy({}, {
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
     // ai = {};
     hjm = _hjm1;
-    var tmp = Math.floor(cc.random0To1() * 9987617);
+    var tmp = Math.floor(Math.random() * 9987617);
     dyl.setRand(tmp);
 });
 
@@ -109,7 +109,7 @@ window.initHjmFun = function () {
     //         var node = cc.director.getScene().getChildren()[0];
     //         getLab(node);
     //         if (isNaN(Number(node.name))) {
-    //             let tmp = Math.floor(cc.random0To1() * 9987617);
+    //             let tmp = Math.floor(Math.random() * 9987617);
     //             cc.log("rand number is ", tmp);
     //             dyl.rand.set(tmp);
     //         }
@@ -173,7 +173,7 @@ window.initHjmFun = function () {
         } else {
             num = Number(num);
         }
-        var tmpArr = [cc.random0To1() + 0.1, -cc.random0To1() - 0.1, cc.random0To1() + 0.1, cc.random0To1() + 0.1, -cc.random0To1() - 0.1];
+        var tmpArr = [Math.random() + 0.1, -Math.random() - 0.1, Math.random() + 0.1, Math.random() + 0.1, -Math.random() - 0.1];
         var id = 0;
         var data1 = null;
         var data2 = null;
@@ -187,8 +187,8 @@ window.initHjmFun = function () {
             //     if (tab[id].lab) {
             //         tab[id].lab.string = String(value);
             //     }
-            rand1 = cc.random0To1() + 0.1;
-            rand2 = cc.random0To1() + 0.1;
+            rand1 = Math.random() + 0.1;
+            rand2 = Math.random() + 0.1;
             data1 = value + rand1 * 13 + rand2 * 1000;
             // data2 = value * 3.1 * rand1 + 1573 * rand2;
             // data3 = value * 7.3 * rand2 + 1629 * rand3;

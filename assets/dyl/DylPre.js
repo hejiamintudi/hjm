@@ -52,9 +52,9 @@ cc.director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
 
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
     updateFunArr = [];
-    // dyl.setRand((cc.random0To1() * 10000 + 23) >> 0);
+    // dyl.setRand((Math.random() * 10000 + 23) >> 0);
     if (window.dyl) {
-        window.dyl.setRand((cc.random0To1() * 10000 + 23) >> 0);
+        window.dyl.setRand((Math.random() * 10000 + 23) >> 0);
     }
 });
 
@@ -81,7 +81,7 @@ window.initDylFun = function (cryptoJS) {
         var w = size.width;
         var h = size.height;
 
-        return cc.p(w, h);
+        return cc.v2(w, h);
     };
 
     dyl.addMap = function (w, h, fun) {
@@ -90,9 +90,9 @@ window.initDylFun = function (cryptoJS) {
             // map[y] = [];
             var arr = [];
             for (var x = 0; x < w; x++) {
-                // map[y][x] = fun ? fun(cc.p(x, y)) : null;
+                // map[y][x] = fun ? fun(cc.v2(x, y)) : null;
                 // cc.log(x, y, map[y][x]);
-                var val = fun ? fun(cc.p(x, y)) : null;
+                var val = fun ? fun(cc.v2(x, y)) : null;
                 arr.push(val);
             }
 
@@ -146,7 +146,7 @@ window.initDylFun = function (cryptoJS) {
                 for (var y = 0; y < this.h; y++) {
                     for (var x = 0; x < this.w; x++) {
                         if (this[y][x] && fun(this[y][x])) {
-                            ansArr.push(cc.p(x, y));
+                            ansArr.push(cc.v2(x, y));
                         }
                     }
                 }
@@ -155,7 +155,7 @@ window.initDylFun = function (cryptoJS) {
                 for (var y = 0; y < this.h; y++) {
                     for (var x = 0; x < this.w; x++) {
                         if (this[y][x] === value) {
-                            ansArr.push(cc.p(x, y));
+                            ansArr.push(cc.v2(x, y));
                         }
                     }
                 }
@@ -178,7 +178,7 @@ window.initDylFun = function (cryptoJS) {
             var arr = [];
             for (var y = 0; y < this.h; y++) {
                 for (var x = 0; x < this.w; x++) {
-                    var p = fun(cc.p(x, y));
+                    var p = fun(cc.v2(x, y));
                     // (p || p === 0) && arr.push(p);
                     if (p !== undefined) {
                         arr.push(p);
@@ -193,7 +193,7 @@ window.initDylFun = function (cryptoJS) {
     dyl.addMapLayer = function (w, h, d) {
         var x = (1 - w) * d / 2;
         var y = (1 - h) * d / 2;
-        var ori = cc.p(x, y);
+        var ori = cc.v2(x, y);
         // cc.log("ori", ori.x, ori.y, w, h, d);
         var fun = function fun(p) {
             //创建函数
@@ -202,7 +202,7 @@ window.initDylFun = function (cryptoJS) {
             return v;
         };
         var map = this.addMap(w, h, fun);
-        map.ori = ori.sub(cc.p(d / 2, d / 2)); //最左下角
+        map.ori = ori.sub(cc.v2(d / 2, d / 2)); //最左下角
         //map.w = w;
         //map.h = h;
         map.d = d;
@@ -216,7 +216,7 @@ window.initDylFun = function (cryptoJS) {
             if (!checkIn(p)) {
                 return false;
             }
-            p = cc.p(p.x, p.y);
+            p = cc.v2(p.x, p.y);
             p.subSelf(this.ori);
             p.mulSelf(1 / d);
             p.x = Math.floor(p.x);
@@ -236,13 +236,13 @@ window.initDylFun = function (cryptoJS) {
         return map;
     };
 
-    var __randNum = (cc.random0To1() * 10000 + 23) >> 0;
+    var __randNum = (Math.random() * 10000 + 23) >> 0;
     dyl.setRand = function (num) {
         cc.log("seed", num);
         __randNum = num;
     };
     dyl.rand = function (num) {
-        // cc.random0To1();
+        // Math.random();
         if (typeof this.__randNum !== "number") {
             this.__randNum = 1;
         }
@@ -322,29 +322,29 @@ window.initDylFun = function (cryptoJS) {
         var keyUpData = {};
         if (data.dir) {
             data.w = function (isOn) {
-                return data.dir(isOn, cc.p(0, 1));
+                return data.dir(isOn, cc.v2(0, 1));
             };
             data.s = function (isOn) {
-                return data.dir(isOn, cc.p(0, -1));
+                return data.dir(isOn, cc.v2(0, -1));
             };
             data.a = function (isOn) {
-                return data.dir(isOn, cc.p(-1, 0));
+                return data.dir(isOn, cc.v2(-1, 0));
             };
             data.d = function (isOn) {
-                return data.dir(isOn, cc.p(1, 0));
+                return data.dir(isOn, cc.v2(1, 0));
             };
 
             data.up = function (isOn) {
-                return data.dir(isOn, cc.p(0, 1));
+                return data.dir(isOn, cc.v2(0, 1));
             };
             data.down = function (isOn) {
-                return data.dir(isOn, cc.p(0, -1));
+                return data.dir(isOn, cc.v2(0, -1));
             };
             data.left = function (isOn) {
-                return data.dir(isOn, cc.p(-1, 0));
+                return data.dir(isOn, cc.v2(-1, 0));
             };
             data.right = function (isOn) {
-                return data.dir(isOn, cc.p(1, 0));
+                return data.dir(isOn, cc.v2(1, 0));
             };
         }
         cc.eventManager.addListener({
@@ -378,29 +378,29 @@ window.initDylFun = function (cryptoJS) {
         var keyUpData = {};
         if (data.dir) {
             data.w = function () {
-                return data.dir(cc.p(0, 1));
+                return data.dir(cc.v2(0, 1));
             };
             data.s = function () {
-                return data.dir(cc.p(0, -1));
+                return data.dir(cc.v2(0, -1));
             };
             data.a = function () {
-                return data.dir(cc.p(-1, 0));
+                return data.dir(cc.v2(-1, 0));
             };
             data.d = function () {
-                return data.dir(cc.p(1, 0));
+                return data.dir(cc.v2(1, 0));
             };
 
             data.up = function () {
-                return data.dir(cc.p(0, 1));
+                return data.dir(cc.v2(0, 1));
             };
             data.down = function () {
-                return data.dir(cc.p(0, -1));
+                return data.dir(cc.v2(0, -1));
             };
             data.left = function () {
-                return data.dir(cc.p(-1, 0));
+                return data.dir(cc.v2(-1, 0));
             };
             data.right = function () {
-                return data.dir(cc.p(1, 0));
+                return data.dir(cc.v2(1, 0));
             };
         }
         cc.eventManager.addListener({
@@ -434,29 +434,29 @@ window.initDylFun = function (cryptoJS) {
         var keyUpData = {};
         if (data.dir) {
             data.w = function () {
-                return data.dir(cc.p(0, 1));
+                return data.dir(cc.v2(0, 1));
             };
             data.s = function () {
-                return data.dir(cc.p(0, -1));
+                return data.dir(cc.v2(0, -1));
             };
             data.a = function () {
-                return data.dir(cc.p(-1, 0));
+                return data.dir(cc.v2(-1, 0));
             };
             data.d = function () {
-                return data.dir(cc.p(1, 0));
+                return data.dir(cc.v2(1, 0));
             };
 
             data.up = function () {
-                return data.dir(cc.p(0, 1));
+                return data.dir(cc.v2(0, 1));
             };
             data.down = function () {
-                return data.dir(cc.p(0, -1));
+                return data.dir(cc.v2(0, -1));
             };
             data.left = function () {
-                return data.dir(cc.p(-1, 0));
+                return data.dir(cc.v2(-1, 0));
             };
             data.right = function () {
-                return data.dir(cc.p(1, 0));
+                return data.dir(cc.v2(1, 0));
             };
         }
         cc.eventManager.addListener({
@@ -487,10 +487,10 @@ window.initDylFun = function (cryptoJS) {
 
     dyl.addDirArr = function (p) {
         // 499 5479 
-        // p = p ? p : cc.p(0, 0);
+        // p = p ? p : cc.v2(0, 0);
         var x = p ? p.x : 0;
         var y = p ? p.y : 0;
-        var arr = [cc.p(x, y + 1), cc.p(x, y - 1), cc.p(x + 1, y), cc.p(x - 1, y)];
+        var arr = [cc.v2(x, y + 1), cc.v2(x, y - 1), cc.v2(x + 1, y), cc.v2(x - 1, y)];
         arr.sort(function () {
             return 0.5 - dyl.rand();
         });
@@ -652,7 +652,7 @@ window.initDylFun = function (cryptoJS) {
     };
 
     dyl.process = function (js, arr) {
-        // var isLog = Math.floor(cc.random0To1() * 100) + 4;
+        // var isLog = Math.floor(Math.random() * 100) + 4;
         // var isLog = false;
         var isLog = true;
 
@@ -779,7 +779,7 @@ window.initDylFun = function (cryptoJS) {
     };
 
     // dyl.process = function (js, arr) {
-    //     // var isLog = Math.floor(cc.random0To1() * 100) + 4;
+    //     // var isLog = Math.floor(Math.random() * 100) + 4;
     //     var isLog = false;
 
     //     var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};

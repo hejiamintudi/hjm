@@ -78,7 +78,7 @@ cc.Class({
             // node.color = color;
             node.setPosition(p);
             node.__lab.string = String(num);
-            // let moveBy = cc.moveBy(0.6, cc.p(0, 200));
+            // let moveBy = cc.moveBy(0.6, cc.v2(0, 200));
             let scale1 = cc.scaleTo(0.1, 1.15);
             let scale2 = cc.scaleTo(0.3, 1);
             // let scale3 = cc.scaleTo(0.2, 1);

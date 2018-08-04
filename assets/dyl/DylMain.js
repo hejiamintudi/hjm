@@ -46,7 +46,7 @@ cc.Class({
             displayName: "调试"
         },
         gravity: {
-            default: cc.p(0, -320),
+            default: cc.v2(0, -320),
             displayName: "重力"
         },
 
@@ -286,11 +286,11 @@ cc.Class({
 
         let fun = function (event){
             let pos = event.getLocation();
-            pos = cc.p(node.convertToNodeSpace(pos));
+            pos = cc.v2(node.convertToNodeSpace(pos));
             let size = node.getContentSize();
             let [w, h] = [size.width, size.height];
             [w, h] = [w / 2, h / 2];
-            pos.subSelf(cc.p(w, h));
+            pos.subSelf(cc.v2(w, h));
 
             pos.in = function () { //判断当前节点是否在node里面
                 let {x, y} = this;

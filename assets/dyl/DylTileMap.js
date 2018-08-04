@@ -28,7 +28,7 @@ cc.Class({
                 for (let x = size.width - 1; x >= 0; x--) {
                     for (let y = size.height - 1; y >= 0; y--) {
                         let gid = layer.getTileGIDAt(x, size.height - y - 1);
-                        fun(cc.p(x, y), gid);
+                        fun(cc.v2(x, y), gid);
                     }
                 }
                 map.d = d;
@@ -42,7 +42,7 @@ cc.Class({
                     let x = arr[i].x / tileD;
                     let y = arr[i].y / tileD;
                     // fun(arr[i], dyl.newPos(x, mapSize.height - y - 1));
-                    fun(cc.p(x, mapSize.height - y - 1), arr[i].name);
+                    fun(cc.v2(x, mapSize.height - y - 1), arr[i].name);
                 }
             }
         }

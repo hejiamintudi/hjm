@@ -3,11 +3,11 @@ let NodeData = cc.Class({
 	properties: {
 		id: "",
 		node: cc.Node,
-		p: cc.p(0, 0),		
+		p: cc.v2(0, 0),		
 		rotation: 0,
 		scaleX: 1,
 		scaleY: 1,
-		// anchorX: cc.p(0.5, 0.5),
+		// anchorX: cc.v2(0.5, 0.5),
 		anchorX: 0.5,
 		anchorY: 0.5,
 		// size: cc.size(100, 100),/**/
@@ -350,15 +350,15 @@ cc.Class({
     	}
     	//   	id: "",
 		// node: cc.Node,
-		// p: cc.p(0, 0),		
+		// p: cc.v2(0, 0),		
 		// rotation: 0,
 		// scaleX: 1,
 		// scaleY: 1,
-		// anchor: cc.p(0.5, 0.5),
+		// anchor: cc.v2(0.5, 0.5),
 		// size: cc.size(100, 100),
 		// color: cc.color(255, 255, 255),
 		// opacity: 255,
-		// skew: cc.p(0, 0),
+		// skew: cc.v2(0, 0),
 
     },
 
@@ -421,7 +421,7 @@ cc.Class({
     	let nodeData = new NodeData;
     	nodeData.id = node.name;
     	nodeData.node = node;
-    	nodeData.p = cc.p(node);
+    	nodeData.p = cc.v2(node);
     	nodeData.rotation = node.rotation;
     	nodeData.scaleX = node.scaleX;
     	nodeData.scaleY = node.scaleY;
