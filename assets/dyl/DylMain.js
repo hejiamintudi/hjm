@@ -278,6 +278,27 @@ cc.Class({
 
     setTouch: function () {
         let node = this.node;
+
+        let dylTouchState = this.node.touch;
+        let dylTouchArgArr = [];
+        Object.defineProperty(this.node, "touch", {
+            get: function () {
+                return dylTouchState;
+            },
+            set: function (data) {
+                if (Array.isArray(data)) {
+                    [dylTouchState, ...dylTouchArgArr] = data;
+                }
+                else {
+                    dylTouchState = data;
+                    dylTouchArgArr = [];
+                }
+                if (typeof dylTouchState !== "string") {
+                    cc.warn("touch的状态应该是字符串，这里却不是", typeof dylTouchState, dylTouchState);
+                }
+            }
+        })
+
         if (!this.node.touch) {
             this.node.touch = "touch";
         }
@@ -319,7 +340,15 @@ cc.Class({
             return pos;
         };
 
-        let data = {};
+        let data = true;
+        let checkData = (tmpName, tmpData)=>{
+            if (tmpData && tmpData !== true && !Array.isArray(tmpData)) {
+                return cc.warn("touch" + tmpName + "return data 不是true，不是否，也不是数组", dylTouchState, tmpData);
+            }
+            if (Array.isArray(tmpData)) {
+                dylTouchArgArr = tmpData;
+            }
+        }
         this.node.on("touchstart", function (event) {
             if (!node.touch) {
                 data = null;
@@ -328,11 +357,18 @@ cc.Class({
             nowTouchState = node.touch;
             let pos = fun(event);
             if (js[node.touch + "On"]) {
-                data = js[node.touch + "On"](pos);
+                data = js[node.touch + "On"](pos, ...dylTouchArgArr);
             }
             else {
-                data = {};
+                data = true;
             }
+            // if (data && data !== true && !Array.isArray(data)) {
+            //     return cc.warn("touchOn return data 不是true，不是否，也不是数组", dylTouchState, data);
+            // }
+            // if (Array.isArray(data)) {
+            //     dylTouchArgArr = data;
+            // }
+            checkData("on", data);
         })
 
         this.node.on ("touchmove", function (event) {
@@ -344,11 +380,18 @@ cc.Class({
             }
             let pos = fun(event);
             if (js[node.touch + "Move"]) {
-                data = js[node.touch + "Move"](pos, data);
+                data = js[node.touch + "Move"](pos, ...dylTouchArgArr);
             }
             else {
-                data = {};
+                data = true;
             }
+            // if (data && data !== true && !Array.isArray(data)) {
+            //     return cc.warn("touchMove return data 不是true，不是否，也不是数组", dylTouchState, data);
+            // }
+            // if (Array.isArray(data)) {
+            //     dylTouchArgArr = data;
+            // }
+            checkData("move", data);
         }, this);
 
         this.node.on ("touchend", function (event) {
@@ -360,14 +403,16 @@ cc.Class({
             }
             let pos = fun(event);
             if (js[node.touch + "End"]) {
-                data = js[node.touch + "End"](pos, data);
+                data = js[node.touch + "End"](pos, ...dylTouchArgArr);
+                checkData("end", data);
                 return;
             }
             if (js[node.touch + "Up"]) {
-                data = js[node.touch + "Up"](pos, data);
+                data = js[node.touch + "Up"](pos, ...dylTouchArgArr);
+                checkData("on", data);
             }
             else {
-                data = {};
+                data = true;
             }
         }, this);
 
@@ -381,13 +426,15 @@ cc.Class({
             let pos = fun(event);
             if (js[node.touch + "End"]) {
                 data = js[node.touch + "End"](pos, data);
+                checkData("on", data);
                 return;
             }
             if (js[node.touch + "Out"]) {
                 data = js[node.touch + "Out"](pos, data);
+                checkData("on", data);
             }
             else {
-                data = {};
+                data = true;
             }
         }, this);
     },

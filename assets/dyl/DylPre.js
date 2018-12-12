@@ -24,7 +24,25 @@
 //     },
 
 
-function _toConsumableArray2(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray3(arr) {
+    if (Array.isArray(arr)) {
+        for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+            arr2[i] = arr[i];
+        }return arr2;
+    } else {
+        return Array.from(arr);
+    }
+}
+
+function _toConsumableArray2(arr) {
+    if (Array.isArray(arr)) {
+        for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+            arr2[i] = arr[i];
+        }return arr2;
+    } else {
+        return Array.from(arr);
+    }
+}
 
 function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -43,6 +61,7 @@ cc.director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
     // cc.log(dt, "end");
     for (var i = updateFunArr.length - 1; i >= 0; i--) {
         if (!updateFunArr[i](dt)) {
+            updateFunArr[i]._dylIsDel = true;
             updateFunArr[i] = updateFunArr[updateFunArr.length - 1];
             updateFunArr[i].id = i;
             updateFunArr.length--;
@@ -54,12 +73,11 @@ cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
     updateFunArr = [];
     // dyl.setRand((Math.random() * 10000 + 23) >> 0);
     if (window.dyl) {
-        window.dyl.setRand((Math.random() * 10000 + 23) >> 0);
+        window.dyl.setRand(Math.random() * 10000 + 23 >> 0);
     }
 });
 
 window.initDylFun = function (cryptoJS) {
-    cc.log("initDylFun", cryptoJS);
     window.dyl = window.dyl || {};
     window.dyl.__debug = {};
     Object.defineProperty(dyl, "debug", {
@@ -120,13 +138,14 @@ window.initDylFun = function (cryptoJS) {
             if (!p) {
                 return false;
             }
-            if (value && value.__classname__ === "cc.Vec2") { //交换位置
-                let value1 = this.get(p);
-                let value2 = this.get(value);
+            if (value && value.__classname__ === "cc.Vec2") {
+                //交换位置
+                var value1 = this.get(p);
+                var value2 = this.get(value);
                 if (value1 === false || value2 === false) {
                     return cc.warn("有无效的位置");
                 }
-                this.set(p,     value2);
+                this.set(p, value2);
                 this.set(value, value1);
                 return true;
             }
@@ -150,8 +169,7 @@ window.initDylFun = function (cryptoJS) {
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 for (var y = 0; y < this.h; y++) {
                     for (var x = 0; x < this.w; x++) {
                         if (this[y][x] === value) {
@@ -169,11 +187,11 @@ window.initDylFun = function (cryptoJS) {
             if (typeof fun !== "function") {
                 var tmpSelf = this;
                 var value = fun;
-                fun = function(p) {
+                fun = function fun(p) {
                     if (tmpSelf[p.y][p.x] === value) {
                         return p;
                     }
-                }
+                };
             }
             var arr = [];
             for (var y = 0; y < this.h; y++) {
@@ -225,18 +243,18 @@ window.initDylFun = function (cryptoJS) {
         };
         map.set = function (nodeMap) {
             var self = this;
-            this.run(function(p) {
+            this.run(function (p) {
                 var x = p.x;
                 var y = p.y;
                 if (nodeMap[y][x]) {
                     nodeMap[y][x].setPosition(self[y][x]);
                 }
-            })
+            });
         };
         return map;
     };
 
-    var __randNum = (Math.random() * 10000 + 23) >> 0;
+    var __randNum = Math.random() * 10000 + 23 >> 0;
     dyl.setRand = function (num) {
         cc.log("seed", num);
         __randNum = num;
@@ -624,7 +642,7 @@ window.initDylFun = function (cryptoJS) {
     //         } else {
     //             return createMove(act, endFun);
     //         }
-            
+
     //     };
     //     for (var i = arguments.length - 1; i > endId; i--) {
     //         // cc.log("arg", i);
@@ -653,8 +671,8 @@ window.initDylFun = function (cryptoJS) {
 
     dyl.process = function (js, arr) {
         // var isLog = Math.floor(Math.random() * 100) + 4;
-        // var isLog = false;
-        var isLog = true;
+        var isLog = false;
+        // isLog = true;
 
         var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
@@ -662,6 +680,9 @@ window.initDylFun = function (cryptoJS) {
         var counterArr = [];
         var nextArr = arr;
         var counter = null;
+
+        //用来保存存档数据的，index代表第几个数字的存档，{arr:nextArr, id:存档点在nextArr的index}
+        var saveDataArr = [];
 
         var runChild = function runChild() {
             var i = 0;
@@ -699,30 +720,58 @@ window.initDylFun = function (cryptoJS) {
             if (isLog) {
                 cc.log(isLog, "counter", name);
             }
+
+            //先判断是否要去存档点
+            if (typeof branch === "number") {
+                var id = branch;
+                var saveData = saveDataArr[id];
+                // cc.log("read", branch, saveData);
+                if (!saveData) {
+                    return cc.warn("没有这个存档点", id);
+                }
+                nextArr = saveData.arr;
+                counterId = saveData.id;
+                return counter();
+            }
+
             if (!name) {
                 //结束了
                 return;
             }
-            if (typeof name === "string") {
+
+            // 正数代表存档，负数代表读档（读正数的档)
+            if (typeof name === "number") {
+                if (name < 0) {
+                    return run(-name);
+                }
+
+                var saveData = {
+                    arr: nextArr,
+                    id: counterId
+                };
+                saveDataArr[name] = saveData;
+                // cc.log("save", name, saveData);
+                return counter();
+            } else if (typeof name === "string") {
                 if (branch) {
-                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了")
+                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了");
                 }
                 //代表函数
-                if (!js[name]) { //如果没有那就跳到下一个函数，有时候用来分支而已，未必是函数
+                if (!js[name]) {
+                    //如果没有那就跳到下一个函数，有时候用来分支而已，未必是函数
                     return counter();
                 }
                 return js[name](counter);
-            }
-            else if (typeof name === "function") {
+            } else if (typeof name === "function") {
                 if (branch) {
-                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了")
+                    return cc.error("正常的运行，应该没有分支才对，是不是哪里逻辑出问题了");
                 }
                 return name(counter);
             }
 
             //下面是数组，代表分支
             if (!branch) {
-                return cc.error("数组是分支，这里应该有一个表示分支的参数")
+                return cc.error("数组是分支，这里应该有一个表示分支的参数");
             }
             for (var i = counterId - 1; i < nextArr.length; i++) {
                 var arr = nextArr[i];
@@ -759,11 +808,11 @@ window.initDylFun = function (cryptoJS) {
         counter = function counter(childJs, name) {
             if (!childJs) {
                 run();
-            } 
-            else if (typeof childJs === "string") {
+            } else if (typeof childJs === "function") {
+                run();
+            } else if (typeof childJs === "string" || typeof childJs === "number") {
                 run(childJs);
-            }
-            else {
+            } else {
                 for (var _len = arguments.length, arrr = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
                     arrr[_key - 2] = arguments[_key];
                 }
@@ -776,6 +825,7 @@ window.initDylFun = function (cryptoJS) {
         }
 
         counter();
+        return counter;
     };
 
     // dyl.process = function (js, arr) {
@@ -879,28 +929,33 @@ window.initDylFun = function (cryptoJS) {
     dyl.update = function (fun) {
         fun.id = updateFunArr.length;
         updateFunArr.push(fun);
-        var delFun = function () {
+        var delFun = function delFun() {
+            if (fun._dylIsDel) {
+                // 已经被删除了
+                return;
+            }
+            fun._dylIsDel = true;
             var id = fun.id;
             updateFunArr[id] = updateFunArr[updateFunArr.length - 1];
             updateFunArr[id].id = id;
             updateFunArr.length--;
-        }
+        };
         return delFun;
     };
 
     dyl.button = function (js) {
-        var setButton = function (name, node) {
+        var setButton = function setButton(name, node) {
             var _scale = node.getScale();
-            node.on('touchstart', function ( event ) {
+            node.on('touchstart', function (event) {
                 node.setScale(0.92 * _scale);
-            });  
-            node.on('touchend', function ( event ) {
+            });
+            node.on('touchend', function (event) {
                 node.setScale(_scale);
                 js[name]();
-            });  
-            node.on('touchcancel', function ( event ) {
+            });
+            node.on('touchcancel', function (event) {
                 node.setScale(_scale);
-            }); 
+            });
         };
         var arr = js.node.getChildren();
         for (var i = arr.length - 1; i >= 0; i--) {
@@ -911,15 +966,20 @@ window.initDylFun = function (cryptoJS) {
         }
     };
 
-    dyl.load = function (...arg) { //动态加载节点，参数方式 path arr fun ：path fun ：arr fun
-        var getPath = function (str) {
+    dyl.load = function () {
+        for (var _len2 = arguments.length, arg = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            arg[_key2] = arguments[_key2];
+        }
+
+        //动态加载节点，参数方式 path arr fun ：path fun ：arr fun
+        var getPath = function getPath(str) {
             str = str.split(' ').join('/');
             str = str.split('.').join('/');
             str = str.split('_').join('/');
             str = str.split('-').join('/');
             str = str.split(',').join('/');
             return str;
-        }
+        };
         if (arg.length === 2 && typeof arg[0] === "string" && typeof arg[1] === "function") {
             var path = getPath(arg[0]);
             cc.loader.loadRes(path, function (err, prefab) {
@@ -935,20 +995,18 @@ window.initDylFun = function (cryptoJS) {
         if (arg.length === 2 && Array.isArray(arg[0]) && typeof arg[1] === "function") {
             fun = arg[1];
             pathArr = arg[0];
-        }
-        else if (arg.length === 3 && typeof arg[0] === "string" && Array.isArray(arg[1]) && typeof arg[2] === "function"){
+        } else if (arg.length === 3 && typeof arg[0] === "string" && Array.isArray(arg[1]) && typeof arg[2] === "function") {
             fun = arg[2];
             pathArr = arg[1];
             for (var i = pathArr.length - 1; i >= 0; i--) {
                 pathArr[i] = arg[0] + "/" + pathArr[i];
             }
-        }
-        else {
+        } else {
             return cc.error("dyl.load 参数有错");
         }
         var nodeArr = [];
         var num = pathArr.length;
-        var loadFun = function (i) {
+        var loadFun = function loadFun(i) {
             var path = getPath(pathArr[i]);
             var id = i;
             cc.loader.loadRes(path, function (err, prefab) {
@@ -957,35 +1015,35 @@ window.initDylFun = function (cryptoJS) {
                 }
                 nodeArr[id] = cc.instantiate(prefab);
                 cc.log(id, nodeArr[id]);
-                if (!(--num)) {
+                if (! --num) {
                     arg[2](nodeArr);
                 }
             });
-        }
+        };
         for (var i = pathArr.length - 1; i >= 0; i--) {
             loadFun(i);
         }
-    };  
+    };
 
-//100 * 100  的物体 dyl.shake(2, 5, 5, hjm._tz);
+    //100 * 100  的物体 dyl.shake(2, 5, 5, hjm._tz);
     dyl.shake = function (time, w, h, node) {
         var x = dyl.rand() * 50 + 30;
         var y = dyl.rand() * 50 + 30;
         cc.log(x, y);
         var t = 0;
-        var fun = function (dt) {
-            node.setPosition(w * Math.sin(x * t), h * Math.sin(y * t))
+        var fun = function fun(dt) {
+            node.setPosition(w * Math.sin(x * t), h * Math.sin(y * t));
             t += dt;
             if (t >= time) {
                 node.setPosition(0, 0);
                 return false;
             }
             return true;
-        }
+        };
         dyl.update(fun);
     };
 
-//这是操作缓冲类，主要处理那种，上一个动作还没有做完，就出现下一个输入的情况。这时候可以把这个输入保存，等做完动作再运行
+    //这是操作缓冲类，主要处理那种，上一个动作还没有做完，就出现下一个输入的情况。这时候可以把这个输入保存，等做完动作再运行
     dyl.buffer = function (actFun, time) {
         // if (typeof actFun !== "function") {
         //     return cc.error("dyl.buffer 参数有错");
@@ -998,7 +1056,8 @@ window.initDylFun = function (cryptoJS) {
         var buffer = { data: null };
         var id = 0; //这个是唯一标记，防止重复执行的
         buffer.add = function (data) {
-            if (!this.data) { //空闲中，可以直接执行，不用保存动作
+            if (!this.data) {
+                //空闲中，可以直接执行，不用保存动作
                 this.data = "ing";
                 return actFun(data);
             }
@@ -1010,22 +1069,122 @@ window.initDylFun = function (cryptoJS) {
                 }
                 buffer.data = null;
             }, time);
-        }
+        };
 
         buffer.del = function (str) {
             ++id;
             // cc.log("del", str);
             if (this.data === "ing") {
                 this.data = null;
-            }
-            else if (this.data) {
+            } else if (this.data) {
                 var tmpData = this.data;
                 this.data = "ing";
                 actFun(tmpData);
             }
-        }
+        };
 
         return buffer;
+    };
+
+    dyl.get = function (data) {
+        if (data === undefined) {
+            return undefined;
+        }
+        for (var _len3 = arguments.length, arr = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+            arr[_key3 - 1] = arguments[_key3];
+        }
+
+        if (data === null && arr.length > 0) {
+            return undefined;
+        }
+
+        if (arr.length === 0) {
+            return data;
+        }
+        var name = arr[0],
+            newArr = arr.slice(1);
+
+        return this.get.apply(this, [data[name]].concat(_toConsumableArray3(newArr)));
+    };
+
+    dyl.notify = function (node, varName, notifyFun) {
+        if (typeof varName !== "string") {
+            return cc.error("这个属性名不是字符串", varName);
+        }
+        var value = node[varName];
+        Object.defineProperty(node, varName, {
+            get: function get() {
+                return value;
+            },
+            set: function set(data) {
+                value = notifyFun(data, value);
+            }
+        });
+    };
+
+    // 计数器
+    // function (fun, num = 0)
+    // 返回函数 count(add = -1)
+    // 如果count后num为0，执行fun。如果执行过fun，那再count就会报错
+    dyl.counter = function (fun) {
+          var num = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+          if (typeof fun !== "function") {
+                return cc.warn("counter的参数fun 不是函数", fun);
+          } else if (typeof num !== "number") {
+                return cc.warn("counter的参数num 不是数字", num);
+          }
+          var isEnd = false;
+          var count = function count() {
+                var add = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+
+                if (isEnd) {
+                    return cc.warn("已经执行完了，不能再算了");
+                }
+                num += add;
+                if (num === 0) {
+                    isEnd = true;
+                    fun();
+                }
+          };
+          return count;
+    };
+
+    // 操作寄存器,可以存储操作，让动作结束后，才进行下一个操作
+    // 返回函数 run (data), data为null，代表动作结束, 否则是添加动作
+    dyl.register = function (fun) {
+          if (typeof fun !== "function") {
+                return console.log("没有执行函数", fun);
+          }
+          var saveData = null;
+          var run = function run(data) {
+                if (data === false) {
+                    return cc.warn("不能保存false的操作");
+                }
+
+                // 立马执行下一个动作
+                if (!data) {
+                      if (saveData === null) {
+                            return;
+                      } else if (saveData === false) {
+                            saveData = null;
+                            return;
+                      } else {
+                            var tmp = saveData;
+                            saveData = false;
+                            return fun(tmp);
+                      }
+                } else {
+                      if (saveData === null) {
+                            saveData = false;
+                            return fun(data);
+                      } else {
+                            saveData = data;
+                            return;
+                      }
+                }
+          };
+          return run;
     };
 
     // dyl.act = function (node, type, ...arr) {
@@ -1069,6 +1228,7 @@ window.initDylFun = function (cryptoJS) {
 };
 
 if (window.initHjmDataFun && window.initHjmFun && window.iscryptoJS) {
+    cc.log("init dylPre");
     window.initDylFun(window.isCryptoJS);
     window.initHjmFun();
     window.initHjmDataFun();

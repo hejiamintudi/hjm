@@ -59,12 +59,13 @@ var hjmInit = function hjmInit() {
 
 var loadEnd = function loadEnd() {
     for (var i in pngRes) {
-        if (pngRes[i]) {
-            cc.loader.releaseRes(i, cc.SpriteFrame);
-            delete pngRes[i];
-        } else {
-            pngRes[i] = true;
-        }
+        cc.loader.releaseRes(i, cc.SpriteFrame);
+        // if (pngRes[i]) {
+        //     cc.loader.releaseRes(i, cc.SpriteFrame);
+        //     // delete pngRes[i];
+        // } else {
+        //     pngRes[i] = true;
+        // }
     }
     pngRes = {};
 };
@@ -84,14 +85,13 @@ window._hjm1 = new Proxy({}, {
 });
 
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
-    // ai = {};
     hjm = _hjm1;
     var tmp = Math.floor(Math.random() * 9987617);
     dyl.setRand(tmp);
 });
 
 cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, function () {
-    loadEnd();
+    // loadEnd();
 });
 
 window.initHjmFun = function () {
@@ -226,9 +226,13 @@ window.initHjmFun = function () {
     _hjm = new Proxy(createFun, {
         get: function get(target, id) {
             if (id[0] === "_") {
+                if (!tab[id]) {
+                    cc.warn("没有", id, "这个节点");
+                }
                 return tab[id];
             }
             // return tab[id].num;
+            // cc.log("id", id);
             return tab[id].get();
         },
 
@@ -242,17 +246,29 @@ window.initHjmFun = function () {
                 // }
                 tab[id].set(value);
             } else {
-                // cc.log(type, id, value);
                 var node = value;
-                if (pngRes[node.name + "/" + id]) {
-                    pngRes[node.name + "/" + id] = false; //这代表是当前场景用到上个场景的图片,不能被删除
-                } else {
-                    pngRes[node.name + "/" + id] = true; //这代表只是上个场景要用到，当前场景不要了
-                }
+                // cc.log(type, id, node);
+                // var mylog = function (logstr) {
+                //     if (id === "polarBear") {
+                //         cc.log(logstr);
+                //     }
+                // }
+                pngRes[node.name + "/" + id] = true;
+                // if (pngRes[node.name + "/" + id]) {
+                //     mylog(2222222);
+                //     pngRes[node.name + "/" + id] = false; //这代表是当前场景用到上个场景的图片,不能被删除
+                //     mylog(333333);
+                // } else {
+                //     mylog(4444);
+                //     pngRes[node.name + "/" + id] = true; //这代表只是上个场景要用到，当前场景不要了
+                //     mylog(55555);
+                // }
+                // mylog(666666);
                 cc.loader.loadRes(node.name + "/" + id, cc.SpriteFrame, function (err, spr) {
                     if (!cc.isValid(node)) {
                         return true;
                     }
+                    // cc.log("err", err);
                     var sprite = node.getComponent(cc.Sprite);
                     sprite.spriteFrame = spr;
                 });

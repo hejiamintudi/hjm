@@ -4,7 +4,21 @@ var getNowTime = function () {
 };
 
 window.tz = function (node, ...argArr) {
+	let once = function (fn) {
+		let result = null;
+        return  function() { 
+            if(fn) {
+                result = fn.apply(this, arguments);
+                fn = null;
+            }
+            else {
+            	cc.warn("tz 这个结束的end函数已经运行过一次了");
+            }
+            return result;
+        };
+	}
 	let isDebug = false;
+	// isDebug = true;
 	let defaultNode = null;
 	if (typeof node === "object" && node.getChildren) {
 		defaultNode = node;
@@ -23,7 +37,7 @@ window.tz = function (node, ...argArr) {
 	let createActArrFun = function (actArr) {
 		let callBack = endFun;
 		endFun = function () {
-			let count = actArr.length;
+			let count = actArr.length + 1; // 多加一个，防止数组为空，不执行
 			let countFun = function () {
 				if (!(--count)) {
 					if (isDebug) {
@@ -34,6 +48,18 @@ window.tz = function (node, ...argArr) {
 			}
 			for (let i = actArr.length - 1; i >= 0; i--) {
 				let act = actArr[i];
+				if (typeof act === "number") {
+					act = cc.delayTime(act);
+				}
+				else if (typeof act === "function") {
+					// act = cc.callFunc(act);
+					// 设置唯一函数，防止多次调用，也防止明明返回false，还要继续执行
+					let actCallBack = once(countFun);
+					if (!act(actCallBack)) {
+						actCallBack();
+					}
+					continue;
+				}
 				let cfun = cc.callFunc(countFun);
 				let seq = cc.sequence(act, cfun);
 				if (!act.node.active) {
@@ -41,9 +67,12 @@ window.tz = function (node, ...argArr) {
 				}
 				act.node.runAction(seq);
 			}
+			countFun();
 		}
+		endFun = once(endFun);
 	}
 	let run = function () {
+		cc.log("rr uuuuu nnnnnnn");
 		if (sameArr) {
 			return cc.error("同时运行的动作，没有结束");
 		}
@@ -53,7 +82,17 @@ window.tz = function (node, ...argArr) {
 				createActArrFun(act);
 				continue;
 			}
+			
 			let tmpEndFun = endFun;
+			if (typeof act === "function") {
+				endFun = once(()=>{
+					if (!act(tmpEndFun)) {
+						tmpEndFun();
+					}
+				})	
+				continue;
+			}
+
 			let cfun = cc.callFunc(function () {
 				if (isDebug) {
 					cc.log(typeof act.actName);
@@ -68,6 +107,7 @@ window.tz = function (node, ...argArr) {
 				}
 				act.node.runAction(seq);
 			}
+			endFun = once(endFun);
 		}
 		endFun();
 	}
@@ -80,10 +120,12 @@ window.tz = function (node, ...argArr) {
 			}
 		}
 		if (typeof data === "function") {
-			let fun = ()=>{
-				data();
-			}
-			act = cc.callFunc(fun);
+			// let fun = ()=>{
+			// 	data();
+			// }
+			// act = cc.callFunc(fun);
+			let fun = (end)=>data(end);
+			act = fun;
 		}
 		else if (typeof data === "number") {
 			act = cc.delayTime(data);
@@ -97,6 +139,7 @@ window.tz = function (node, ...argArr) {
 	}
 	let ansFun = function (data) {
 		if (data === undefined) {
+			// cc.log("rrrrrrr uuuuu nnnnnnnn");
 			return run(); //开始运行了
 		}
 		let act = createSampleAct(data);
@@ -110,6 +153,10 @@ window.tz = function (node, ...argArr) {
 	}
 
 	for (let i = 0; i < argArr.length; i++) {
+		// cc.log("aaaaaa nnnnnn ssssssss", argArr);
+		if (argArr[i] === undefined) {
+			continue;
+		}
 		ansFun(argArr[i]);
 	}
 
@@ -142,27 +189,27 @@ window.tz = function (node, ...argArr) {
         			//////////////////////////// (下面这个缓冲)
         			let ease = null;
         			let easeType = arr[arr.length - 1];
-        			if (easeType === "in") {
+        			if (easeType === "add") {
         				arr.pop();
         				ease = cc.easeIn(2.0);
         			}
-        			else if (easeType === "out") {
+        			else if (easeType === "sub") {
         				arr.pop();
         				ease = cc.easeOut(2.0);
         			}
-        			else if (easeType === "inOut") {
+        			else if (easeType === "addSub") {
         				arr.pop();
         				ease = cc.easeInOut(2.0);
         			}
-        			else if (easeType === "backIn") {
+        			else if (easeType === "backAdd") {
         				arr.pop();
         				ease = cc.easeBackIn();
         			}
-        			else if (easeType === "backOut") {
+        			else if (easeType === "subBack") {
         				arr.pop();
         				ease = cc.easeBackOut();
         			}
-        			else if (easeType === "backInOut") {
+        			else if (easeType === "backAddSubBack") {
         				arr.pop();
         				ease = cc.easeBackInOut();
         			}
