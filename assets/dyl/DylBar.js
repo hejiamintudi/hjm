@@ -47,35 +47,42 @@ cc.Class({
             }
         },
 
-        backSpr: {
-            default: null,
-            type: cc.SpriteFrame,
-            // notify: function (){
-            //     return this.resetSpr();
-            // }
-        },
+        // backSpr: {
+        //     default: null,
+        //     type: cc.SpriteFrame,
+        //     // notify: function (){
+        //     //     return this.resetSpr();
+        //     // }
+        // },
 
-        barSpr: {
-            default: null,
-            type: cc.SpriteFrame,
-            // notify: function (){
-            //     return this.resetSpr();
-            // }
-        },
+        // barSpr: {
+        //     default: null,
+        //     type: cc.SpriteFrame,
+        //     // notify: function (){
+        //     //     return this.resetSpr();
+        //     // }
+        // },
     },
 
     __preload: function () {
+        cc.bar = this;
         this.delActFun = ()=>null;
 
         this.checkIsNew();
         this._bar = this.node.getChildByName("bar");
         
-        if (this._barMaxLen === 0) {
-            let width = this.getSize(this._bar).x;
-            if (width < 1) {
-                return cc.warn("血条总长度为0", width);
-            }
-            this._barMaxLen = width / this.progress;
+        if (CC_EDITOR) {
+            this._bar.on("size-changed", ()=>{
+                if (this.progress < 0.00001) {
+                    this._bar.width = 0;
+                    return;
+                }
+                let width = this.getSize(this._bar).x;
+                if (width < 1) {
+                    return cc.warn("血tiao条总长度为0", width);
+                }
+                this._barMaxLen = width / this.progress;
+            })
         }
 
         this.node.set = (value)=>{
@@ -84,6 +91,15 @@ cc.Class({
         this.node.change = (oldValue, newValue)=>{
             return this.changeFun(oldValue, newValue);
         }
+
+        if (this._barMaxLen === 0) {
+            let width = this.getSize(this._bar).x;
+            if (width < 1) {
+                return cc.warn("血条总长度为0", width);
+            }
+            this._barMaxLen = width / this.progress;
+        }
+
     },
 
     getSize: function (node) {
@@ -143,6 +159,8 @@ cc.Class({
             let node = new cc.Node("bar");
             this.node.addChild(node);
             node.addComponent(cc.Sprite);
+            node.setAnchorPoint(0, 0.5);
+            node.x = -0.5 * this.getSize(this.node).x
         }
         if (!this.node.getChildByName("bar").getComponent(cc.Sprite)) {
             cc.warn("子节点的bar, 没有sprite组件");
@@ -185,6 +203,7 @@ cc.Class({
     },
 
     changeFun: function (oldValue, newValue) {
+        // cc.log(oldValue, newValue);
         this.delActFun(); // 停止之前的动作
         // cc.log(this._hp, this._maxHp, this._barMaxLen);
         if (this._maxHp <= 0) {
@@ -192,6 +211,10 @@ cc.Class({
             return this._bar.width = 0;
         }
 
+        if (oldValue > this._maxHp) {
+            oldValue = this._maxHp;
+        }
+        
         if (oldValue === newValue) {
             this._bar.width = this._barMaxLen * this._hp / this._maxHp;            
         }

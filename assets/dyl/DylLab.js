@@ -150,6 +150,7 @@ cc.Class({
             },
 
             // 如果是 bool类型，那就代表是控制active
+            // 如果是 function类型，那就是设置该属性的notify(oldValue, newValue)函数
             // 可以多个同时赋值，如果node的set函数返回值为更改值，如果返回 undefined 就是不改动
             set: function (data) {
                 if (typeof data === "boolean") {
@@ -157,6 +158,11 @@ cc.Class({
                         let node = dataArr[i];
                         node.active = data;
                     }
+                    return;
+                }
+
+                if (typeof data === "function") {
+                    dataArr.notify = data;
                     return;
                 }
 
@@ -183,11 +189,17 @@ cc.Class({
                 if (oldData === undefined) { // 这算是第一次赋值
                     oldData = data;
                 }
+                else if (typeof oldData.getChildren === "function") {
+                    oldData = data;
+                }
                 for (let i = 0; i < dataArr.length; i++) {
                     let node = dataArr[i];
                     if (typeof node.change === "function") {
                         node.change(oldData, data);
                     }
+                }
+                if (typeof dataArr.notify === "function") {
+                    dataArr.notify(oldData, data);
                 }
             }
         })
