@@ -1138,6 +1138,11 @@ window.initDylFun = function (cryptoJS) {
           var count = function count() {
                 var add = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
 
+                // 因为某些时候，这个add参数为endFun，所以要忽略它，改为默认参数 -1
+                if (typeof add !== "number") {
+                    add = -1;
+                }
+
                 if (isEnd) {
                     return cc.warn("已经执行完了，不能再算了");
                 }
@@ -1185,6 +1190,29 @@ window.initDylFun = function (cryptoJS) {
                 }
           };
           return run;
+    };
+
+    dyl.shake = function (node, duration) {
+        node.runAction(
+            cc.repeatForever(
+                cc.sequence(
+                    cc.moveTo(0.02, cc.v2(5, 7)),
+                    cc.moveTo(0.02, cc.v2(-6, 7)),
+                    cc.moveTo(0.02, cc.v2(-13, 3)),
+                    cc.moveTo(0.02, cc.v2(3, -6)),
+                    cc.moveTo(0.02, cc.v2(-5, 5)),
+                    cc.moveTo(0.02, cc.v2(2, -8)),
+                    cc.moveTo(0.02, cc.v2(-8, -10)),
+                    cc.moveTo(0.02, cc.v2(3, 10)),
+                    cc.moveTo(0.02, cc.v2(0, 0))
+                )
+            )
+        );
+
+        setTimeout(() => {
+            node.stopAllActions();
+            node.setPosition(0,0);
+        }, duration*1000);
     };
 
     // dyl.act = function (node, type, ...arr) {

@@ -72,7 +72,7 @@ window.tz = function (node, ...argArr) {
 		endFun = once(endFun);
 	}
 	let run = function () {
-		cc.log("rr uuuuu nnnnnnn");
+		// cc.log("rr uuuuu nnnnnnn");
 		if (sameArr) {
 			return cc.error("同时运行的动作，没有结束");
 		}

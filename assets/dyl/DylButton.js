@@ -29,6 +29,7 @@ cc.Class({
         popdownNode: cc.Node,
 
         // clearArr: [cc.String],
+        // "Null", "NextScene", "NextLevel", "Restart", "ExitGame", "Popup", "Popdown"
         sceneType: "NextLevel",
         // sceneType: {
         //     default: SceneEnum.Null,
@@ -38,11 +39,12 @@ cc.Class({
         //         this._refresh();
         //     }
         // },
-        nextScene: {
-            default: "",
-            visible: false,
-            displayName: "场景名"
-        },
+        nextScene: "",
+        // nextScene: {
+        //     default: "",
+        //     visible: false,
+        //     displayName: "场景名"
+        // },
 
     },
 
@@ -52,6 +54,20 @@ cc.Class({
 
     getTopNode: function () {
         return cc.director.getScene().getChildren()[0];
+    },
+
+    // 获取所有场景名
+    getSceneArr: function () {
+        let ansArr = [];
+        let sceneInfoArr = cc.game._sceneInfos;
+        for (let i = 0; i < sceneInfoArr.length; i++) {
+            let url = sceneInfoArr[i].url;
+            let arr = url.split("/");
+            let name = arr[arr.length - 1];
+            name = name.split(".")[0];
+            ansArr.push(name);
+        }
+        return ansArr;
     },
 
     myInit: function () {

@@ -160,6 +160,23 @@ cc.Class({
                     }
                     return;
                 }
+                else if (cc.js.getClassName(data) === "cc.Vec2") {
+                    for (let i = 0; i < dataArr.length; i++) {
+                        let node = dataArr[i];
+                        node.setPosition(data);
+                    }
+                    return;
+                }
+                else if (cc.js.getClassName(data) === "cc.Color") {
+                    for (let i = 0; i < dataArr.length; i++) {
+                        let node = dataArr[i];
+                        node.color = data;
+                    }
+                    return;
+                }
+
+
+
 
                 if (typeof data === "function") {
                     dataArr.notify = data;
