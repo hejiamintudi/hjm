@@ -72,9 +72,9 @@ cc.director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
 cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
     updateFunArr = [];
     // dyl.setRand((Math.random() * 10000 + 23) >> 0);
-    if (window.dyl) {
-        window.dyl.setRand(Math.random() * 10000 + 23 >> 0);
-    }
+    // if (window.dyl) {
+    //     window.dyl.setRand(Math.random() * 10000 + 23 >> 0);
+    // }
 });
 
 window.initDylFun = function (cryptoJS) {

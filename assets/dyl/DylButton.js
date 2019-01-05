@@ -58,6 +58,7 @@ cc.Class({
 
     // 获取所有场景名
     getSceneArr: function () {
+        return ["aa", "bb"];
         let ansArr = [];
         let sceneInfoArr = cc.game._sceneInfos;
         for (let i = 0; i < sceneInfoArr.length; i++) {
@@ -100,7 +101,12 @@ cc.Class({
 
     onClick: function () {
         // if (this.audio) {
-            cc.audioEngine.play("res/raw-assets/resources/dyl/button.mp3", false, 1);
+            cc.loader.load(cc.url.raw('resources/dyl/button.mp3'), function (err, sound) {
+                if (err) {
+                    cc.error(err);
+                }
+                cc.audioEngine.play(sound, false, 1);
+            });
             // cc.audioEngine.play(this.audio, false, 1);
         // }
         // for (var i = this.clearArr.length - 1; i >= 0; i--) {
