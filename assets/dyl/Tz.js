@@ -137,20 +137,24 @@ window.tz = function (node, ...argArr) {
 		act.actName = data;
 		return act;
 	}
-	let ansFun = function (data) {
-		if (data === undefined) {
+	let ansFun = function (...arr) {
+		if (arr[0] === undefined) {
 			// cc.log("rrrrrrr uuuuu nnnnnnnn");
 			return run(); //开始运行了
 		}
-		let act = createSampleAct(data);
-		if (sameArr) { 
-			sameArr.push(act);
-		}
-		else {
-			mainSeq.push(act);
+		for (let i = 0; i < arr.length; i++) {
+			let data = arr[i];
+			let act = createSampleAct(data);
+			if (sameArr) { 
+				sameArr.push(act);
+			}
+			else {
+				mainSeq.push(act);
+			}
 		}
 		return proxy;
 	}
+
 
 	for (let i = 0; i < argArr.length; i++) {
 		// cc.log("aaaaaa nnnnnn ssssssss", argArr);
