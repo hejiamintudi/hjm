@@ -121,14 +121,14 @@ window.initHjmFun = function () {
 
     var createFun = function createFun(name, defaultValue) {
         if (defaultValue && (typeof defaultValue === "undefined" ? "undefined" : _typeof(defaultValue)) === "object") {
-            var data = dyl.read("_" + name);
+            var data = JSON.parse(dyl.read(name));
             if (!data) {
                 data = defaultValue;
             }
             var newProxy = new Proxy(data, {
                 set: function set(target, id, value) {
                     target[id] = value;
-                    dyl.save("_" + name, target);
+                    dyl.save(name, JSON.stringify(target));
                     return true;
                 },
                 get: function get(target, id) {

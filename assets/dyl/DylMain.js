@@ -349,6 +349,13 @@ cc.Class({
                 dylTouchArgArr = tmpData;
             }
         }
+
+        // 添加 LongOn LongUp LongOut LongEnd
+        let lastPos_1 = pos; // 最后显示的位置, 后面的_1是为了防止跟其他变量重复
+        let isHasLong = false; // 是否存在长按操作的函数
+        let longId = 0; // 这是查看当前的长按是否存在
+        let isOnLong = false; // 是否触发了长按操作
+ 
         this.node.on("touchstart", function (event) {
             if (!node.touch) {
                 data = null;
@@ -356,6 +363,34 @@ cc.Class({
             }
             nowTouchState = node.touch;
             let pos = fun(event);
+
+            longId++;
+            lastPos_1 = pos;
+            isOnLong = false;
+            // 检查是否有长按操作的函数，如果没有就没有必要添加定时器
+            isHasLong = js[node.touch + "LongOn"] || js[node.touch + "LongUp"] || js[node.touch + "LongOut"] || js[node.touch + "LongEnd"];
+            // let tmpLongId = ++longId;
+            if (isHasLong) {
+                let tmpLongId = longId;
+                setTimeout(()=>{
+                    // 如果不是同一个触摸事件，取消
+                    if (tmpLongId !== longId) {
+                        return;
+                    }
+                    if (nowTouchState !== node.touch) {
+                        return null;
+                    }
+                    isOnLong = true;
+                    if (js[node.touch + "LongOn"]) {
+                        data = js[node.touch + "LongOn"](lastPos_1, ...dylTouchArgArr);
+                    }
+                    else {
+                        data = true;
+                    }
+                    checkData("on", data);
+                }, 500);
+            }
+
             if (js[node.touch + "On"]) {
                 data = js[node.touch + "On"](pos, ...dylTouchArgArr);
             }
@@ -379,6 +414,8 @@ cc.Class({
                 return null;
             }
             let pos = fun(event);
+            lastPos_1 = pos; // 这是给长按用的
+
             if (js[node.touch + "Move"]) {
                 data = js[node.touch + "Move"](pos, ...dylTouchArgArr);
             }
@@ -402,6 +439,19 @@ cc.Class({
                 return null;
             }
             let pos = fun(event);
+
+            // 长按操作会覆盖短按操作
+            if (js[node.touch + "LongEnd"] && isOnLong) {
+                data = js[node.touch + "LongEnd"](pos, ...dylTouchArgArr);
+                checkData("longEnd", data);
+                return;
+            }
+            if (js[node.touch + "LongUp"] && isOnLong) {
+                data = js[node.touch + "LongUp"](pos, ...dylTouchArgArr);
+                checkData("longUp", data);
+                return;
+            }
+
             if (js[node.touch + "End"]) {
                 data = js[node.touch + "End"](pos, ...dylTouchArgArr);
                 checkData("end", data);
@@ -409,7 +459,7 @@ cc.Class({
             }
             if (js[node.touch + "Up"]) {
                 data = js[node.touch + "Up"](pos, ...dylTouchArgArr);
-                checkData("on", data);
+                checkData("up", data);
             }
             else {
                 data = true;
@@ -424,14 +474,27 @@ cc.Class({
                 return null;
             }
             let pos = fun(event);
+
+            // 长按操作会覆盖短按操作
+            if (js[node.touch + "LongEnd"] && isOnLong) {
+                data = js[node.touch + "LongEnd"](pos, ...dylTouchArgArr);
+                checkData("longEnd", data);
+                return;
+            }
+            if (js[node.touch + "LongOut"] && isOnLong) {
+                data = js[node.touch + "LongOut"](pos, ...dylTouchArgArr);
+                checkData("longOut", data);
+                return;
+            }
+
             if (js[node.touch + "End"]) {
                 data = js[node.touch + "End"](pos, data);
-                checkData("on", data);
+                checkData("end", data);
                 return;
             }
             if (js[node.touch + "Out"]) {
                 data = js[node.touch + "Out"](pos, data);
-                checkData("on", data);
+                checkData("out", data);
             }
             else {
                 data = true;

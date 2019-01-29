@@ -308,27 +308,27 @@ window.initDylFun = function (cryptoJS) {
 
     dyl.save = function (name, data) {
         if (data === 0 || data) {
-            if (name[0] === "_") {
-                var str = JSON.stringify(data);
-                cc.sys.localStorage.setItem(name, __encryptFun(str));
-            } else {
-                cc.sys.localStorage.setItem(name, __encryptFun(data));
-            }
+            // if (name[0] === "_") {
+            //     var str = JSON.stringify(data);
+            //     cc.sys.localStorage.setItem(name, __encryptFun(str));
+            // } else {
+            //     cc.sys.localStorage.setItem(name, __encryptFun(data));
+            // }
+            cc.sys.localStorage.setItem(name, __encryptFun(data));
         } else {
             //删除数据
             cc.sys.localStorage.removeItem(name);
         }
     };
     dyl.read = function (name) {
-        //checkIn(p,isT) tposToPos(tp) getTpos(p) getPos(p, isT)
-        if (name[0] === "_") {
-            var data = cc.sys.localStorage.getItem(name);
-            if (!data) {
-                return data;
-            }
-            var str = __decryptFun(data);
-            return JSON.parse(str);
-        }
+        // if (name[0] === "_") {
+        //     var data = cc.sys.localStorage.getItem(name);
+        //     if (!data) {
+        //         return data;
+        //     }
+        //     var str = __decryptFun(data);
+        //     return JSON.parse(str);
+        // }
         var data1 = cc.sys.localStorage.getItem(name);
         if (!data1) {
             return data1;
@@ -669,9 +669,9 @@ window.initDylFun = function (cryptoJS) {
         return data._data;
     };
 
-    dyl.process = function (js, arr) {
+    dyl.process = function (js, arr, isLog) {
         // var isLog = Math.floor(Math.random() * 100) + 4;
-        var isLog = false;
+        // var isLog = false;
         // isLog = true;
 
         var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -1107,6 +1107,38 @@ window.initDylFun = function (cryptoJS) {
         return this.get.apply(this, [data[name]].concat(_toConsumableArray3(newArr)));
     };
 
+    dyl.set = function () {
+        var _dyl;
+
+        for (var _len4 = arguments.length, arr = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+            arr[_key4] = arguments[_key4];
+        }
+
+        if (arr.length < 2) {
+            return cc.error("参数太少了，至少需要两个");
+        }
+        var value = arr.pop();
+        var lastVar = arr.pop();
+        var data = (_dyl = dyl).get.apply(_dyl, arr);
+        if (!data) {
+            return;
+        }
+        data[lastVar] = value;
+    };
+
+    // dyl.set = function (...arr) {
+    //     if (arr.length < 2) {
+    //         return cc.error("参数太少了，至少需要两个");
+    //     }
+    //     let value = arr.pop();
+    //     let lastVar = arr.pop();
+    //     let data = dyl.get(...arr);
+    //     if (!data) {
+    //         return;
+    //     }
+    //     data[lastVar] = value;
+    // };
+
     dyl.notify = function (node, varName, notifyFun) {
         if (typeof varName !== "string") {
             return cc.error("这个属性名不是字符串", varName);
@@ -1127,92 +1159,78 @@ window.initDylFun = function (cryptoJS) {
     // 返回函数 count(add = -1)
     // 如果count后num为0，执行fun。如果执行过fun，那再count就会报错
     dyl.counter = function (fun) {
-          var num = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var num = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-          if (typeof fun !== "function") {
-                return cc.warn("counter的参数fun 不是函数", fun);
-          } else if (typeof num !== "number") {
-                return cc.warn("counter的参数num 不是数字", num);
-          }
-          var isEnd = false;
-          var count = function count() {
-                var add = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+        if (typeof fun !== "function") {
+            return cc.warn("counter的参数fun 不是函数", fun);
+        } else if (typeof num !== "number") {
+            return cc.warn("counter的参数num 不是数字", num);
+        }
+        var isEnd = false;
+        var count = function count() {
+            var add = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
 
-                // 因为某些时候，这个add参数为endFun，所以要忽略它，改为默认参数 -1
-                if (typeof add !== "number") {
-                    add = -1;
-                }
+            // 因为某些时候，这个add参数为endFun，所以要忽略它，改为默认参数 -1
+            if (typeof add !== "number") {
+                add = -1;
+            }
 
-                if (isEnd) {
-                    return cc.warn("已经执行完了，不能再算了");
-                }
-                num += add;
-                if (num === 0) {
-                    isEnd = true;
-                    fun();
-                }
-          };
-          return count;
+            if (isEnd) {
+                return cc.warn("已经执行完了，不能再算了");
+            }
+            num += add;
+            if (num === 0) {
+                isEnd = true;
+                fun();
+            }
+        };
+        return count;
     };
 
     // 操作寄存器,可以存储操作，让动作结束后，才进行下一个操作
     // 返回函数 run (data), data为null，代表动作结束, 否则是添加动作
     dyl.register = function (fun) {
-          if (typeof fun !== "function") {
-                return console.log("没有执行函数", fun);
-          }
-          var saveData = null;
-          var run = function run(data) {
-                if (data === false) {
-                    return cc.warn("不能保存false的操作");
-                }
+        if (typeof fun !== "function") {
+            return console.log("没有执行函数", fun);
+        }
+        var saveData = null;
+        var run = function run(data) {
+            if (data === false) {
+                return cc.warn("不能保存false的操作");
+            }
 
-                // 立马执行下一个动作
-                if (!data) {
-                      if (saveData === null) {
-                            return;
-                      } else if (saveData === false) {
-                            saveData = null;
-                            return;
-                      } else {
-                            var tmp = saveData;
-                            saveData = false;
-                            return fun(tmp);
-                      }
+            // 立马执行下一个动作
+            if (!data) {
+                if (saveData === null) {
+                    return;
+                } else if (saveData === false) {
+                    saveData = null;
+                    return;
                 } else {
-                      if (saveData === null) {
-                            saveData = false;
-                            return fun(data);
-                      } else {
-                            saveData = data;
-                            return;
-                      }
+                    var tmp = saveData;
+                    saveData = false;
+                    return fun(tmp);
                 }
-          };
-          return run;
+            } else {
+                if (saveData === null) {
+                    saveData = false;
+                    return fun(data);
+                } else {
+                    saveData = data;
+                    return;
+                }
+            }
+        };
+        return run;
     };
 
     dyl.shake = function (node, duration) {
-        node.runAction(
-            cc.repeatForever(
-                cc.sequence(
-                    cc.moveTo(0.02, cc.v2(5, 7)),
-                    cc.moveTo(0.02, cc.v2(-6, 7)),
-                    cc.moveTo(0.02, cc.v2(-13, 3)),
-                    cc.moveTo(0.02, cc.v2(3, -6)),
-                    cc.moveTo(0.02, cc.v2(-5, 5)),
-                    cc.moveTo(0.02, cc.v2(2, -8)),
-                    cc.moveTo(0.02, cc.v2(-8, -10)),
-                    cc.moveTo(0.02, cc.v2(3, 10)),
-                    cc.moveTo(0.02, cc.v2(0, 0))
-                )
-            )
-        );
+        node.runAction(cc.repeatForever(cc.sequence(cc.moveTo(0.02, cc.v2(5, 7)), cc.moveTo(0.02, cc.v2(-6, 7)), cc.moveTo(0.02, cc.v2(-13, 3)), cc.moveTo(0.02, cc.v2(3, -6)), cc.moveTo(0.02, cc.v2(-5, 5)), cc.moveTo(0.02, cc.v2(2, -8)), cc.moveTo(0.02, cc.v2(-8, -10)), cc.moveTo(0.02, cc.v2(3, 10)), cc.moveTo(0.02, cc.v2(0, 0)))));
 
-        setTimeout(() => {
+        setTimeout(function () {
             node.stopAllActions();
-            node.setPosition(0,0);
-        }, duration*1000);
+            node.setPosition(0, 0);
+        }, duration * 1000);
     };
 
     // dyl.act = function (node, type, ...arr) {
