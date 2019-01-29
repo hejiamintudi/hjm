@@ -351,7 +351,7 @@ cc.Class({
         }
 
         // 添加 LongOn LongUp LongOut LongEnd
-        let lastPos_1 = pos; // 最后显示的位置, 后面的_1是为了防止跟其他变量重复
+        let lastPos_1 = null; // 最后显示的位置, 后面的_1是为了防止跟其他变量重复
         let isHasLong = false; // 是否存在长按操作的函数
         let longId = 0; // 这是查看当前的长按是否存在
         let isOnLong = false; // 是否触发了长按操作
