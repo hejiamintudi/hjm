@@ -432,6 +432,7 @@ cc.Class({
         }, this);
 
         this.node.on ("touchend", function (event) {
+            longId++;
             if (!data) {
                 return null;
             }
@@ -467,6 +468,7 @@ cc.Class({
         }, this);
 
         this.node.on ("touchcancel", function (event) {
+            longId++;
             if (!data) {
                 return null;
             }
