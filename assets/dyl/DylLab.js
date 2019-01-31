@@ -161,9 +161,10 @@ cc.Class({
                     return;
                 }
                 else if (cc.js.getClassName(data) === "cc.Vec2") {
+                    let p = data.sub(dataArr[0]); // 偏移量
                     for (let i = 0; i < dataArr.length; i++) {
                         let node = dataArr[i];
-                        node.setPosition(data);
+                        node.setPosition(p.add(node));
                     }
                     return;
                 }
@@ -171,6 +172,14 @@ cc.Class({
                     for (let i = 0; i < dataArr.length; i++) {
                         let node = dataArr[i];
                         node.color = data;
+                    }
+                    return;
+                }
+                else if (cc.Action.prototype.isPrototypeOf(data)) {
+                    for (let i = 0; i < dataArr.length; i++) {
+                        let node = dataArr[i];
+                        let tmpAct = data.clone();
+                        node.runAction(tmpAct);
                     }
                     return;
                 }
@@ -227,7 +236,7 @@ cc.Class({
 
     initLab: function () {
         let arr = this.node.getChildren();
-        for (var i = arr.length - 1; i >= 0; i--) {
+        for (var i = 0; i < arr.length; i++) {
             let node = arr[i];
             let name = node.name;
             if (name === "say") {
