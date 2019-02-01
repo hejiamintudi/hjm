@@ -161,6 +161,12 @@ cc.Class({
                     return;
                 }
                 else if (cc.js.getClassName(data) === "cc.Vec2") {
+                    if (typeof data.x !== "number") {
+                        data.x = dataArr[0].x;
+                    }
+                    if (typeof data.y !== "number") {
+                        data.y = dataArr[0].y;
+                    }
                     let p = data.sub(dataArr[0]); // 偏移量
                     for (let i = 0; i < dataArr.length; i++) {
                         let node = dataArr[i];
