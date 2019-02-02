@@ -107,16 +107,34 @@ cc.Class({
             this._dylProgressBar.progress = value;
             return value;
         }
-        this.addDataNode(node.name, node);
+        let arr = node.name.split("_");
+        for (let i = 0; i < arr.length; i++) {
+            let name = arr[i];
+            if (name === "") {
+                continue;
+            }
+            this.addDataNode(name, node);
+        }
+
+        // this.addDataNode(node.name, node);
     },
 
     // 添加普通节点
     setSameNode: function (node) {
-        this.addDataNode(node.name, node);
-        this._data[node.name].value = node;
+        let arr = node.name.split("_");
+        for (let i = 0; i < arr.length; i++) {
+            let name = arr[i];
+            if (name === "") {
+                continue;
+            }
+            this.addDataNode(name, node);
+            this._data[name].value = node;
+        }
+        
     },
 
     setLabel: function (node) {
+        
         node._dylLabel = node.getComponent(cc.Label);
         node.set = function (value) {
             if ((typeof value !== "string") && (typeof value !== "number")) {
@@ -130,12 +148,29 @@ cc.Class({
         node.change = function (oldData, newData) {
             
         }
+
         node._dylLabel._dylSayId = 0;
-        this.addDataNode(node.name, node);
+
+        let arr = node.name.split("_");
+        for (let i = 0; i < arr.length; i++) {
+            let name = arr[i];
+            if (name === "") {
+                continue;
+            }
+            this.addDataNode(name, node);
+        }
+        // this.addDataNode(node.name, node);
     },
 
     setDylNode: function (node) {
-        this.addDataNode(node.name, node);
+        let arr = node.name.split("_");
+        for (let i = 0; i < arr.length; i++) {
+            let name = arr[i];
+            if (name === "") {
+                continue;
+            }
+            this.addDataNode(name, node);
+        }
     },
 
     setData: function (name, value) {
@@ -175,7 +210,9 @@ cc.Class({
                     return;
                 }
                 else if (cc.js.getClassName(data) === "cc.Color") {
+                    // cc.log("color", 1);
                     for (let i = 0; i < dataArr.length; i++) {
+                        // cc.log("color", node.name);
                         let node = dataArr[i];
                         node.color = data;
                     }
