@@ -19,6 +19,10 @@ cc.Class({
         let delPool = [];
 
         delPool.push(node);
+
+        // 这个是在添加节点时触发的函数, addFun(node, ...arr);
+        let addFun = ()=>null;
+
         node.del = function () {
             this.active = false;
             delPool.push(this);
@@ -29,7 +33,12 @@ cc.Class({
             this.__poolId = null;
         }
 
-        this.node.add = function () {
+        this.node.add = function (...argArr) {
+            if (typeof argArr[0] === "function") {
+                addFun = argArr[0];
+                return;
+            }
+
             // cc.log("addd");
             let node = null;
             if (delPool.length < 1) {
@@ -54,6 +63,7 @@ cc.Class({
             }
             node.__poolId = pool.length;
             pool.push(node);
+            addFun(node, ...argArr);
             // cc.log("成功添加");
             return node;
         }
