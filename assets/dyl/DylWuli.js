@@ -1,7 +1,7 @@
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/物理",
+        menu: "dyl/♑ 物理",
         executeInEditMode: true,
         inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },

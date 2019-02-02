@@ -1,7 +1,7 @@
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/瓦块地图",
+        menu: "dyl/▦ 瓦块地图",
         inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },
     properties: {

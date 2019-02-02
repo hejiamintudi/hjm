@@ -10,7 +10,7 @@ var SceneEnum = cc.Enum({
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/按钮",
+        menu: "dyl/♎ 按钮",
         executeInEditMode: true,
         inspector: 'packages://dyl-button/DylButton.js',
     },

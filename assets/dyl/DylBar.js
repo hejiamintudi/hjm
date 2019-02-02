@@ -4,7 +4,7 @@
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/血条",
+        menu: "dyl/▬ 血条",
         executeInEditMode: true
     },
 

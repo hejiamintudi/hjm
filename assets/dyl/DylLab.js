@@ -1,7 +1,7 @@
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/文字",
+        menu: "dyl/㊣ 文字",
         inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },
     properties: {

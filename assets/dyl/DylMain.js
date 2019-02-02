@@ -24,9 +24,9 @@ let Effect = cc.Enum({
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/主逻辑",
+        menu: "dyl/♉ 主逻辑",
         executeInEditMode: true,
-        inspector: 'packages://dyl-main/DylMain.js',
+        inspector: 'packages://dyl-main/DylMain.js'
     },
     properties: {
         // rand: 0,
