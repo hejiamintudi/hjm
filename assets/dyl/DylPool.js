@@ -1,7 +1,7 @@
 cc.Class({
     extends: cc.Component,
     editor: {
-        menu: "dyl/☰ 对象池",
+        menu: "dyl/♨ 对象池",
         inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },
     properties: {
