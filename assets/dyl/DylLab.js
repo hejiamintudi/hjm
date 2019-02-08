@@ -8,6 +8,12 @@ cc.Class({
     },
 
     __preload: function () {
+        // cc.log("__preload dyllab");
+        this.dylPreload();
+    },
+
+    dylPreload: function () {
+        // cc.log("__preload");
         this._data = {}; // name: nodeArr nodeArr.value
 
         this.initLab();

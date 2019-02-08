@@ -6,10 +6,32 @@ cc.Class({
         // inspector: 'packages://dyl-nowshow/DylNotshow.js',
     },
     properties: {
-        isEffect: false
+        isEffect: false,
+    },
+
+    logPath: function (node) {
+        let str = "";
+        let fun = (node)=>{
+            if (!node) {
+                return;
+            }
+            str = node.name + " " + str;
+            fun(node.parent);
+        }
+        fun(this.node);
+        cc.log(str);
     },
 
     __preload: function () {
+        // 删除自己
+        let arr = this.node._components;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === this) {
+                arr.splice(i, 1);
+                break;
+            }
+        }
+
         this.preInit();
         this.initPool();
     },
@@ -19,32 +41,43 @@ cc.Class({
     preInit: function () {
         let nodeArr = [...this.node.getChildren()];
 
-        let top = new cc.Node();
-        this.node.parent.addChild(top);
+        // let top = new cc.Node();
+        // this.node.parent.addChild(top);
         for (let i = 0; i < nodeArr.length; i++) {
-            nodeArr[i].parent = top;
+            nodeArr[i].parent = this.node.parent;
         }
         this.node.setPosition(cc.v2(0, 0));
+        // this.logPath(this.node);
         let newNode = cc.instantiate(this.node);
-        newNode.removeComponent("DylPool");
-        newNode.parent = top;
+        // newNode.getComponent("DylPool").enabled = false;
+        // newNode.getComponent("DylPool").destroy();
+        // newNode.removeComponent("DylPool");
+
+        // cc.log("newNode", newNode.getComponent("DylPool")); 
+        newNode.parent = this.node;
         newNode.name = "tmp";
-        newNode.setPosition(cc.v2(0, 0));
+        // newNode.setPosition(cc.v2(0, 0));
+        // cc.kk = newNode;
 
         let components = [...this.node._components];
         for (let i = components.length - 1; i >= 0; i--) {
-            if (components[i] === this) {
-                continue;
-            }
+            // if (components[i] === this) {
+            //     continue;
+            // }
+
+            // components[i].enabled = false;
             components[i].destroy();
         }
-
-        top.parent = this.node;
+        for (let i = 0; i < nodeArr.length; i++) {
+            nodeArr[i].parent = newNode;
+        }
+        newNode.setPosition(this.node);
+        // top.parent = this.node;
     },
 
     myPlay: function (node, str) {
         // cc.log(1, "node", node.active);
-        let nodeArr = node.getChildren();
+        let nodeArr = [node, ...node.getChildren()];
         let counter = dyl.counter(()=>node.del(), nodeArr.length);
 
         for (let i = 0; i < nodeArr.length; i++) {
@@ -57,7 +90,7 @@ cc.Class({
         if (color === null) {
             return;
         }
-        let nodeArr = node.getChildren();
+        let nodeArr = [node, ...node.getChildren()];
         for (let i = nodeArr.length - 1; i >= 0; i--) {
             nodeArr[i].color = color;
         }
@@ -120,16 +153,35 @@ cc.Class({
         // return cc.warn("暂时还没有完善粒子播放功能");
     },
 
+    resetDylNode: function (node, componentName) {
+        let js = node.getComponent(componentName);
+        if (!js) {
+            return;
+        }
+        js.__preload();
+    },
+
     initPool: function () {
+        let testThis = this; 
+
         let node = this.node.getChildren()[0];
+
+        
+        this.resetDylNode(node, "DylLab");
+        // this.resetDylNode(node, "DylBar");
+
         node.active = false;
+        // node.active = true;
+        // node.active = false;
 
         let pool = [];
         let delPool = [];
         // cc.pp = pool;
         // cc.ppp = delPool;
         delPool.push(node);
+        // cc.kk = node;
         node.del = function () {
+            cc.log("del");
             this.active = false;
             delPool.push(this);
             let id = this.__poolId;
@@ -142,6 +194,7 @@ cc.Class({
         let self = this;
         if (this.isEffect) {
             this.node.add = function (...argArr) {
+                cc.log("isEffect");
                 let pos = null;
                 let str = null;
                 let color = null;
@@ -167,7 +220,7 @@ cc.Class({
                     // cc.log("111");
                     node = cc.instantiate(pool[0]);
                     node.parent = this;
-
+                    // testThis.logPath(node);
                     node.del = function () {
                         this.active = false;
                         delPool.push(this);
@@ -209,7 +262,9 @@ cc.Class({
                 let node = null;
                 if (delPool.length < 1) {
                     node = cc.instantiate(pool[0]);
+                    // testThis.logPath(node);
                     node.parent = this;
+                    cc.log(node.name, node.parent.name);
 
                     node.del = function () {
                         this.active = false;
