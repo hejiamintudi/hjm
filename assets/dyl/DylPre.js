@@ -674,6 +674,15 @@ window.initDylFun = function (cryptoJS) {
         // var isLog = false;
         // isLog = true;
 
+        var log = function (arr1, arr2) {
+            if (arr1[0] === true) {
+                arr1.splice(0,1);
+            }
+            var argumentArr = [];
+            console.log("%c" + String(arr1) + " %c" + String(arr2), "color:#37DC94;font-weight:bold;", "color:#FA5C65;font-weight:bold;");
+            // cc.log(...arr1, arr2);
+        }
+
         var tab = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
         var counterId = 0;
@@ -689,7 +698,8 @@ window.initDylFun = function (cryptoJS) {
             var childCounter = function childCounter() {
                 var data = counterArr[i++];
                 if (isLog) {
-                    cc.log(isLog, "childCounter", data);
+                    // log([isLog, "childCounter",], data);
+                    log([isLog, "childCounter",], "");
                 }
                 if (!data) {
                     counterArr.length = 0;
@@ -718,7 +728,7 @@ window.initDylFun = function (cryptoJS) {
             }
             var name = nextArr[counterId++];
             if (isLog) {
-                cc.log(isLog, "counter", name);
+                log([isLog, "counter"], name);
             }
 
             //先判断是否要去存档点

@@ -19,6 +19,10 @@ window.tz = function (node, ...argArr) {
 	}
 	let isDebug = false;
 	// isDebug = true;
+	dylLog = function (arg) {
+		console.log("%c" + String(arg), "color:#fe8bd9;font-weight:bold;");
+	}
+	// isDebug = true;
 	let defaultNode = null;
 	if (typeof node === "object" && node.getChildren) {
 		defaultNode = node;
@@ -41,7 +45,7 @@ window.tz = function (node, ...argArr) {
 			let countFun = function () {
 				if (!(--count)) {
 					if (isDebug) {
-						cc.log("sameArr");
+						dylLog("sameArr");
 					}
 					callBack();
 				}
@@ -95,8 +99,8 @@ window.tz = function (node, ...argArr) {
 
 			let cfun = cc.callFunc(function () {
 				if (isDebug) {
-					cc.log(typeof act.actName);
-					cc.log(act.actName);
+					// dylLog(typeof act.actName);
+					dylLog(act.actName);
 				}
 				tmpEndFun();
 			});
