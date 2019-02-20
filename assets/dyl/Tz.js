@@ -18,7 +18,7 @@ window.tz = function (node, ...argArr) {
         };
 	}
 	let isDebug = false;
-	// isDebug = true;
+	isDebug = true;
 	dylLog = function (arg) {
 		console.log("%c" + String(arg), "color:#fe8bd9;font-weight:bold;");
 	}

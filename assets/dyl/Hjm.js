@@ -253,7 +253,8 @@ window.initHjmFun = function () {
                 //         cc.log(logstr);
                 //     }
                 // }
-                pngRes[node.name + "/" + id] = true;
+                let pathStr = node.dylSpriteNodeName ? node.dylSpriteNodeName : node.name;
+                pngRes[pathStr + "/" + id] = true;
                 // if (pngRes[node.name + "/" + id]) {
                 //     mylog(2222222);
                 //     pngRes[node.name + "/" + id] = false; //这代表是当前场景用到上个场景的图片,不能被删除
@@ -264,9 +265,12 @@ window.initHjmFun = function () {
                 //     mylog(55555);
                 // }
                 // mylog(666666);
-                cc.loader.loadRes(node.name + "/" + id, cc.SpriteFrame, function (err, spr) {
+                cc.loader.loadRes(pathStr + "/" + id, cc.SpriteFrame, function (err, spr) {
                     if (!cc.isValid(node)) {
                         return true;
+                    }
+                    if (err) {
+                        cc.log("err", err);    
                     }
                     // cc.log("err", err);
                     var sprite = node.getComponent(cc.Sprite);

@@ -7,6 +7,8 @@ cc.Class({
     properties: {
     },
 
+    // 为了配合hjm的动态加载图片，对那些变量只有一个节点 而且有sprite的节点给与另外的路径命名
+
     __preload: function () {
         // cc.log("__preload dyllab");
         this.dylPreload();
@@ -335,6 +337,12 @@ cc.Class({
         }
         for (let i in this._data) {
             this.setData(i, this.node[i]);
+            if (this._data[i].length === 1) {
+                let spriteNode = this._data[i][0];
+                if (spriteNode.getComponent(cc.Sprite)) {
+                    spriteNode.dylSpriteNodeName = i;
+                }
+            }
         }
     },
 });
