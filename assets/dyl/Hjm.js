@@ -16,17 +16,20 @@ window.ai = {};
 window._hjm = null;
 window.hjm = null;
 var tab = {};
+var hasTab = {}; // 只是保存
 var pngRes = {};
 var getLab = function getLab(node) {
     // let lab = node.getComponent(cc.Label);
     var name = node.name;
     if (name[0] === "_") {
         tab[node.name] = node;
+        hasTab[node.name] = true;
     } else {
         var stringArr = name.split("_");
         if (stringArr[0] === "hjm" && stringArr.length !== 1) {
-            tab[stringArr[1]].lab = node.getComponent(cc.Label);
-            tab[stringArr[1]].lab.string = String(tab[stringArr[1]].get());
+            var tmpLab = node.getComponent(cc.Label);
+            tab[stringArr[1]].labArr.push(tmpLab);
+            tmpLab.string = String(tab[stringArr[1]].get());
         }
     }
     var arr = node.getChildren();
@@ -37,8 +40,13 @@ var getLab = function getLab(node) {
 
 var removeLab = function removeLab() {
     for (var i in tab) {
-        if (i[0] !== "_") {
-            tab[i].lab = null;
+        // 把前一个场景保存的节点删了
+        if (i[0] === "_") {
+            tab[i] = null;
+            hasTab[i] = false;
+        }
+        else if (tab[i].labArr){
+            tab[i].labArr = [];
         }
     }
 };
@@ -92,6 +100,10 @@ cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, function () {
 
 cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, function () {
     // loadEnd();
+    if (hjm === _hjm1) {
+        hjm = _hjm;
+        hjmInit();
+    }
 });
 
 window.initHjmFun = function () {
@@ -120,7 +132,8 @@ window.initHjmFun = function () {
     // };
 
     var createFun = function createFun(name, defaultValue) {
-        if (defaultValue && (typeof defaultValue === "undefined" ? "undefined" : _typeof(defaultValue)) === "object") {
+        hasTab[name] = true;
+        if (Array.isArray(defaultValue)) {
             var data = JSON.parse(dyl.read(name));
             if (!data) {
                 data = defaultValue;
@@ -147,6 +160,62 @@ window.initHjmFun = function () {
                 set: _set,
                 get: _get
             };
+            return;
+        }
+        else if (defaultValue && (typeof defaultValue === "undefined" ? "undefined" : _typeof(defaultValue)) === "object") {
+            // var data = JSON.parse(dyl.read(name));
+            var data = {};
+            var objStr = "_" + name + "_";
+            if (dyl.read(objStr)) {
+                for (var objIndex in defaultValue) {
+                    data[objIndex] = dyl.read(objStr + objIndex);
+                    // cc.log(objStr, objIndex, data[objIndex]);
+                }
+            }
+            else {
+                data = defaultValue;
+                for (var objIndex in defaultValue) {
+                     dyl.save(objStr + objIndex, data[objIndex]);
+                }
+                dyl.save(objStr, true);
+            }
+            // 给一个函数嵌套，防止局部变量被污染了
+            var fun = function () {
+                // 这是保存是否有这个变量的对象，防止赋值错误
+                var varTab = {};
+                for (var i in defaultValue) {
+                    varTab[i] = true;
+                }
+
+                var tmpObjStr = objStr; // 这里保存一份，不然感觉会被污染
+                var newProxy = new Proxy(data, {
+                    set: function set(target, id, value) {
+                        if (!varTab[id]) {
+                            return cc.error(name + " 这个对象并没有", id, "这个变量");
+                        }
+                        target[id] = value;
+                        // dyl.save(name, JSON.stringify(target));
+                        dyl.save(tmpObjStr + id, value);
+                        return true;
+                    },
+                    get: function get(target, id) {
+                        return target[id];
+                    }
+                });
+                var _set = function _set(value) {
+                    return cc.error("hjm 无法直接改变原有保存的变量");
+                    // data = value;
+                    // dyl.save("_" + name);
+                };
+                var _get = function _get() {
+                    return newProxy;
+                };
+                tab[name] = {
+                    set: _set,
+                    get: _get
+                };
+            };
+            fun();
             return;
         } else if (typeof defaultValue === "string") {
             var str = dyl.read(name);
@@ -197,8 +266,11 @@ window.initHjmFun = function () {
             i = 4 - (id + 2) % 5;
             data3 = value * tmpArr[i] * rand2 * 51.1 + 91.3;
             dyl.save(name, value);
-            if (tab[name].lab) {
-                tab[name].lab.string = String(value);
+            // if (tab[name].lab) {
+            //     tab[name].lab.string = String(value);
+            // }
+            for (var i = tab[name].labArr.length - 1; i >= 0; i--) {
+                tab[name].labArr[i].string = String(value);
             }
         };
         var get = function get() {
@@ -218,17 +290,21 @@ window.initHjmFun = function () {
         tab[name] = {
             get: get,
             set: set,
-            lab: null
+            labArr: [] // 这次改为多个，可能不只是一个地方有这个数字
         };
         set(num);
     };
 
     _hjm = new Proxy(createFun, {
         get: function get(target, id) {
+            if (!hasTab[id]) {
+                cc.warn("hjm 没有", id, "这个属性");
+                return;
+            }
             if (id[0] === "_") {
-                if (!tab[id]) {
-                    cc.warn("没有", id, "这个节点");
-                }
+                // if (!tab[id]) {
+                //     cc.warn("没有", id, "这个节点");
+                // }
                 return tab[id];
             }
             // return tab[id].num;
@@ -239,6 +315,14 @@ window.initHjmFun = function () {
         set: function set(target, id, value) {
             var type = typeof value === "undefined" ? "undefined" : _typeof(value);
             if (type === "number" || type === "string") {
+                if (!hasTab[id]) {
+                    cc.warn("hjm 没有", id, "这个属性");
+                    return;
+                }
+                if (id[0] === "_") {
+                    cc.warn("hjm 这是保存节点的", id);
+                    return;
+                }
                 // tab[id].num = value;
                 // dyl.save(id, value);
                 // if (tab[id].lab) {

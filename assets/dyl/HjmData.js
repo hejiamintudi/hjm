@@ -9,6 +9,8 @@ window.initHjmDataFun = function () {
 	_hjm("arr", [0, 1]);
 	_hjm("tab", {hp: 1, mp: 2});
 	_hjm("zxp", {a: 1, b: 2});
+	_hjm("q", 11);
+	_hjm("w", 22);
 };
 
 if (window.isCryptoJS && window.initHjmFun && window.initDylFun) {
