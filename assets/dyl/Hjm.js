@@ -223,15 +223,27 @@ window.initHjmFun = function () {
                 str = defaultValue;
             }
             var _set2 = function _set2(value) {
+                // if (typeof value === "function") {
+                //     tab[name].notify = value;
+                //     return;
+                // }
+
                 dyl.save(name, value);
+                var oldValue = str;
                 str = value;
+                for (var i = tab[name].labArr.length - 1; i >= 0; i--) {
+                    tab[name].labArr[i].string = String(value);
+                }
+                tab[name].notify(value, oldValue, tab[name].labArr);
             };
             var _get2 = function _get2() {
                 return str;
             };
             tab[name] = {
                 set: _set2,
-                get: _get2
+                get: _get2,
+                labArr: [],
+                notify: function (newValue, oldValue, labArr) {}
             };
             return;
         }
@@ -249,7 +261,13 @@ window.initHjmFun = function () {
         var data3 = null;
         var rand1 = 0.1;
         var rand2 = 0.1;
+
+        // var oldValue = num;
         var set = function set(value) {
+            // if (typeof value === "function") {
+            //     tab[name].notify = value;
+            //     return;
+            // }
             id++;
             // tab[id].num = value;
             //     dyl.save(id, value);
@@ -265,6 +283,9 @@ window.initHjmFun = function () {
             data2 = value * tmpArr[i] * rand1 * 13.3 + 31.7;
             i = 4 - (id + 2) % 5;
             data3 = value * tmpArr[i] * rand2 * 51.1 + 91.3;
+
+            var oldValue = num;
+            num = value;
             dyl.save(name, value);
             // if (tab[name].lab) {
             //     tab[name].lab.string = String(value);
@@ -272,6 +293,7 @@ window.initHjmFun = function () {
             for (var i = tab[name].labArr.length - 1; i >= 0; i--) {
                 tab[name].labArr[i].string = String(value);
             }
+            tab[name].notify(num, oldValue, tab[name].labArr);
         };
         var get = function get() {
             var num1 = data1 - (rand1 * 13 + rand2 * 1000);
@@ -285,12 +307,13 @@ window.initHjmFun = function () {
             if (Math.abs(num1 - num3) > 0.001) {
                 return cc.error("数据2出现异常");
             }
-            return Math.round(num1);
+            return num;
         };
         tab[name] = {
             get: get,
             set: set,
-            labArr: [] // 这次改为多个，可能不只是一个地方有这个数字
+            labArr: [], // 这次改为多个，可能不只是一个地方有这个数字
+            notify: function (newValue, oldValue, labArr) {}
         };
         set(num);
     };
@@ -329,7 +352,16 @@ window.initHjmFun = function () {
                 //     tab[id].lab.string = String(value);
                 // }
                 tab[id].set(value);
-            } else {
+            } else if (typeof value === "function") {
+                if (tab[id] && tab[id].notify) {
+                    tab[id].notify = value;
+                }
+                else {
+                    cc.warn("hjm 这个属性不存在或不能设置函数", id);
+                }
+                return;
+            }
+            else {
                 var node = value;
                 // cc.log(type, id, node);
                 // var mylog = function (logstr) {
