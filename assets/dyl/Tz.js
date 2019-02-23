@@ -4,7 +4,12 @@ var getNowTime = function () {
 };
 
 window.tz = function (node, ...argArr) {
+	let stopActArr = []; // {node： node， act： act};
+	let isStop = -1; // true 代表暂停， false 代表运行中， -1 代表tz没有建立运行，还不能接受true跟false
+	
 	let once = function (fn) {
+		return fn; // 因为要循环运行，所以要多次触发，不需要一次性的函数了
+
 		let result = null;
         return  function() { 
             if(fn) {
@@ -18,7 +23,7 @@ window.tz = function (node, ...argArr) {
         };
 	}
 	let isDebug = false;
-	isDebug = true;
+	// isDebug = true;
 	dylLog = function (arg) {
 		console.log("%c" + String(arg), "color:#fe8bd9;font-weight:bold;");
 	}
@@ -36,11 +41,18 @@ window.tz = function (node, ...argArr) {
 	let sameArr = null;
 
 	let proxy = null;
+
+	let oriEndFun = null; // 这是最初的头执行函数, 下面再赋值
+	let runNum = 1; // 要执行的次数 -1 代表无限执行
 	let endFun = function () {
+		if (--runNum) {
+			oriEndFun();
+		}
 	};
 	let createActArrFun = function (actArr) {
 		let callBack = endFun;
 		endFun = function () {
+			stopActArr = [];
 			let count = actArr.length + 1; // 多加一个，防止数组为空，不执行
 			let countFun = function () {
 				if (!(--count)) {
@@ -69,6 +81,7 @@ window.tz = function (node, ...argArr) {
 				if (!act.node.active) {
 					cc.warn("这个节点 active 为 false", "sameArr");
 				}
+				stopActArr.push({node: act.node, act: seq});
 				act.node.runAction(seq);
 			}
 			countFun();
@@ -90,6 +103,7 @@ window.tz = function (node, ...argArr) {
 			let tmpEndFun = endFun;
 			if (typeof act === "function") {
 				endFun = once(()=>{
+					stopActArr = [];
 					if (!act(tmpEndFun)) {
 						tmpEndFun();
 					}
@@ -106,6 +120,7 @@ window.tz = function (node, ...argArr) {
 			});
 			let seq = cc.sequence(act, cfun);
 			endFun = function () {
+				stopActArr = [{node: act.node, act: seq}];
 				if (!act.node.active) {
 					cc.warn("这个节点 active 为 false", act.actName);
 				}
@@ -113,6 +128,7 @@ window.tz = function (node, ...argArr) {
 			}
 			endFun = once(endFun);
 		}
+		oriEndFun = endFun;
 		endFun();
 	}
 	let createSampleAct = function (data) {
@@ -143,8 +159,58 @@ window.tz = function (node, ...argArr) {
 	}
 	let ansFun = function (...arr) {
 		if (arr[0] === undefined) {
-			// cc.log("rrrrrrr uuuuu nnnnnnnn");
+			// cc.log("tz 0");
+			if (isStop !== -1) {
+				return cc.warn("tz 已经运行过了，不能再用了");
+			}
+			isStop = false;
 			return run(); //开始运行了
+		}
+		else if (typeof arr[0] === "number" && arr[0] < 0) {
+			// cc.log("tz 1");
+			if (isStop !== -1) {
+				return cc.warn("tz 已经运行过了，不能再用了");
+			}
+			isStop = false;
+			runNum = -arr[0];
+			return run();
+		}
+		else if (typeof arr[0] === "number" && isNaN(arr[0])) {
+			// cc.log("tz 2");
+			if (isStop !== -1) {
+				return cc.warn("tz 已经运行过了，不能再用了");
+			}
+			isStop = false;
+			runNum = -1;
+			return run();
+		}
+		if (typeof arr[0] === "boolean") {
+			if (isStop === -1) {
+				cc.warn("tz 还没有建立运行");
+				return;
+			}
+			if (stopActArr.length === 0) {
+				return cc.warn("tz 这里没有要暂停的动作表，是否都是函数？");
+			}
+			if (arr[0]) { // 恢复运行
+				if (!isStop) { // 本来就在运行了，没必要再执行一次
+					return;
+				}
+				for (var i = stopActArr.length - 1; i >= 0; i--) {
+					stopActArr[i].node.resumeAllActions();
+				}
+				isStop = false;
+			}
+			else { // 
+				if (isStop) { // 本来就在停止了，没必要再停止一次
+					return;
+				}
+				for (var i = stopActArr.length - 1; i >= 0; i--) {
+					stopActArr[i].node.pauseAllActions();
+				}
+				isStop = true;
+			}
+			return;
 		}
 		for (let i = 0; i < arr.length; i++) {
 			let data = arr[i];
