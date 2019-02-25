@@ -128,7 +128,7 @@ window.tz = function (node, ...argArr) {
 				continue;
 			}
 
-			// act是循环次数 -1为无限循环下去
+			// act是循环次数 -1为无限循环下去。
 			if (typeof act === "number") {
 				if (typeof mainSeq[i - 1] === "number") {
 					return cc.warn("tz 连续这里有一个循环体为空，就是连续两个参数为负数");
