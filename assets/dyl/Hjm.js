@@ -10,7 +10,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 //     __preload () {
 
-// cc.log("hjm");
+// cc.log("hjm")
 window.ai = {};
 
 window._hjm = null;
