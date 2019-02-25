@@ -3,8 +3,10 @@ var getNowTime = function () {
     return [data.getSeconds(), data.getMilliseconds()];
 };
 
+// 空是里面执行 负数是循环次数 NaN是无限循环
 window.tz = function (node, ...argArr) {
 	let stopActArr = []; // {node： node， act： act};
+	let loopArr = []; // 循环数组 参数 fun
 	let isStop = -1; // true 代表暂停， false 代表运行中， -1 代表tz没有建立运行，还不能接受true跟false
 	
 	let once = function (fn) {
@@ -42,13 +44,18 @@ window.tz = function (node, ...argArr) {
 
 	let proxy = null;
 
-	let oriEndFun = null; // 这是最初的头执行函数, 下面再赋值
-	let runNum = 1; // 要执行的次数 -1 代表无限执行
+	// let oriEndFun = null; // 这是最初的头执行函数, 下面再赋值
+	// let runNum = 1; // 要执行的次数 -1 代表无限执行
+	// let endFun = function () {
+	// 	if (--runNum) {
+	// 		oriEndFun();
+	// 	}
+	// };
 	let endFun = function () {
-		if (--runNum) {
-			oriEndFun();
-		}
+
 	};
+	loopArr.push(endFun);
+
 	let createActArrFun = function (actArr) {
 		let callBack = endFun;
 		endFun = function () {
@@ -64,8 +71,12 @@ window.tz = function (node, ...argArr) {
 			}
 			for (let i = actArr.length - 1; i >= 0; i--) {
 				let act = actArr[i];
+				// if (typeof act === "number" && act < 0) {
+				// 	return cc.warn("tz 同步动作不能接受 循环操作");
+				// }
 				if (typeof act === "number") {
-					act = cc.delayTime(act);
+					return cc.error("tz 同步动作不能接受 循环操作");
+					// act = cc.delayTime(act);
 				}
 				else if (typeof act === "function") {
 					// act = cc.callFunc(act);
@@ -93,6 +104,12 @@ window.tz = function (node, ...argArr) {
 		if (sameArr) {
 			return cc.error("同时运行的动作，没有结束");
 		}
+		if (typeof mainSeq[0] === "number") {
+			return cc.error("tz 一开始不能是循环数，因为没有动作可以循环");
+		}
+		if (typeof mainSeq[mainSeq.length - 1] !== "number") {
+			mainSeq.push(1);
+		}
 		for (let i = mainSeq.length - 1; i >= 0; i--) {
 			let act = mainSeq[i];
 			if (Array.isArray(act)) {
@@ -108,6 +125,29 @@ window.tz = function (node, ...argArr) {
 						tmpEndFun();
 					}
 				})	
+				continue;
+			}
+
+			// act是循环次数 -1为无限循环下去
+			if (typeof act === "number") {
+				if (typeof mainSeq[i - 1] === "number") {
+					return cc.warn("tz 连续这里有一个循环体为空，就是连续两个参数为负数");
+				}
+
+				let loopId = loopArr.length; // 当前loopFun的id，因为赋值晚点才触发
+				loopArr[loopId - 1].oriEndFun = endFun;
+				let loopNum = act;
+
+				endFun = ()=>{
+					stopActArr = [];
+					if (loopNum--) {
+						loopArr[loopId].oriEndFun();
+					}
+					else {
+						loopArr[loopId - 1]();
+					}
+				}
+				loopArr.push(endFun);
 				continue;
 			}
 
@@ -128,8 +168,13 @@ window.tz = function (node, ...argArr) {
 			}
 			endFun = once(endFun);
 		}
-		oriEndFun = endFun;
-		endFun();
+		// loopArr.push(endFun);
+		loopArr[loopArr.length - 1].oriEndFun = endFun;
+
+		loopArr[loopArr.length - 1]();
+		// oriEndFun = endFun;
+		// loopArr.push(endFun);
+		// endFun();
 	}
 	let createSampleAct = function (data) {
 		let act = null;
@@ -148,7 +193,15 @@ window.tz = function (node, ...argArr) {
 			act = fun;
 		}
 		else if (typeof data === "number") {
-			act = cc.delayTime(data);
+			if (data < 0) {
+				act = -data;
+			}
+			else if (isNaN(data)) {
+				act = -1;
+			}
+			else  {
+				act = cc.delayTime(data);
+			}
 		}
 		else {
 			cc.error("参数有问题,这里不接受其他参数");
@@ -164,37 +217,39 @@ window.tz = function (node, ...argArr) {
 				return cc.warn("tz 已经运行过了，不能再用了");
 			}
 			isStop = false;
-			return run(); //开始运行了
+			run(); //开始运行了
+			return proxy;
 		}
-		else if (typeof arr[0] === "number" && arr[0] < 0) {
-			// cc.log("tz 1");
-			if (isStop !== -1) {
-				return cc.warn("tz 已经运行过了，不能再用了");
-			}
-			isStop = false;
-			runNum = -arr[0];
-			return run();
-		}
-		else if (typeof arr[0] === "number" && isNaN(arr[0])) {
-			// cc.log("tz 2");
-			if (isStop !== -1) {
-				return cc.warn("tz 已经运行过了，不能再用了");
-			}
-			isStop = false;
-			runNum = -1;
-			return run();
-		}
+		// else if (typeof arr[0] === "number" && arr[0] < 0) {
+		// 	// cc.log("tz 1");
+		// 	if (isStop !== -1) {
+		// 		return cc.warn("tz 已经运行过了，不能再用了");
+		// 	}
+		// 	isStop = false;
+		// 	runNum = -arr[0];
+		// 	return run();
+		// }
+		// else if (typeof arr[0] === "number" && isNaN(arr[0])) {
+		// 	// cc.log("tz 2");
+		// 	if (isStop !== -1) {
+		// 		return cc.warn("tz 已经运行过了，不能再用了");
+		// 	}
+		// 	isStop = false;
+		// 	runNum = -1;
+		// 	return run();
+		// }
 		if (typeof arr[0] === "boolean") {
 			if (isStop === -1) {
 				cc.warn("tz 还没有建立运行");
-				return;
+				return proxy;
 			}
 			if (stopActArr.length === 0) {
-				return cc.warn("tz 这里没有要暂停的动作表，是否都是函数？");
+				cc.warn("tz 这里没有要暂停的动作表，是否都是函数？");
+				return proxy;
 			}
 			if (arr[0]) { // 恢复运行
 				if (!isStop) { // 本来就在运行了，没必要再执行一次
-					return;
+					return proxy;
 				}
 				for (var i = stopActArr.length - 1; i >= 0; i--) {
 					stopActArr[i].node.resumeAllActions();
@@ -203,14 +258,14 @@ window.tz = function (node, ...argArr) {
 			}
 			else { // 
 				if (isStop) { // 本来就在停止了，没必要再停止一次
-					return;
+					return proxy;
 				}
 				for (var i = stopActArr.length - 1; i >= 0; i--) {
 					stopActArr[i].node.pauseAllActions();
 				}
 				isStop = true;
 			}
-			return;
+			return proxy;
 		}
 		for (let i = 0; i < arr.length; i++) {
 			let data = arr[i];
