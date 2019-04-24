@@ -276,6 +276,10 @@ cc.Class({
     //     }
     // },
 
+    // 加了一个button模式
+        // 对应着buttonOn(node) buttonUp(node) 
+        // button = arr:需要被点击的节点数组
+        // button模式最高优先级，如果没有被点击到button才使用其他触摸
     setTouch: function () {
         let node = this.node;
         let dylButtonNode = null;
