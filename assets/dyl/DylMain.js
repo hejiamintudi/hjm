@@ -286,6 +286,9 @@ cc.Class({
         node.button = node.button ? node.button : [];
         let findButtonFun = function (worldPos, nodeArr) {
             for (let i = 0; i < nodeArr.length; i++) {
+                if (!nodeArr[i].active) {
+                    continue;
+                }
                 let rect = nodeArr[i].getBoundingBoxToWorld();
                 if (rect.contains(worldPos)) {
                     return nodeArr[i];
