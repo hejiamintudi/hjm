@@ -209,7 +209,7 @@ cc.Class({
                     return;
                 }
                 // else if (cc.js.getClassName(data) === "cc.Vec2") {
-                else if ((typeof data === "object") && (data.x !== undefined) && (data.y !== undefined)) {
+                else if (data && (typeof data === "object") && (typeof data.getChildren !== "function") && (data.x !== undefined) && (data.y !== undefined)) {
                     if (data.x === true) {
                         // cc.log("NaN x");
                         data.x = dataArr[0].x;
@@ -240,6 +240,32 @@ cc.Class({
                         node.runAction(tmpAct);
                     }
                     return;
+                }
+                else if (Array.isArray(data)) {
+                    let tmpArr = data;
+                    if (tmpArr.length === 1) {
+                        // node.rotation = tmpArr[0];
+                        let rotation = tmpArr[0];
+                        for (let i = 0; i < dataArr.length; i++) {
+                            let node = dataArr[i];
+                            node.rotation = rotation;
+                        }
+                    }
+                    else if (arr.length === 2) {
+                        let scaleX = arr[0];
+                        let scaleY = arr[1];
+                        for (let i = 0; i < dataArr.length; i++) {
+                            let node = dataArr[i];
+                            node.setScale(scaleX, scaleY);
+                        }    
+                    }
+                }
+                else if (cc.js.getClassName(data) === "cc.Node") { // 复制另一个节点的图片
+                    if (!data.getComponent(cc.Sprite)) {
+                        return cc.error("如果接受节点，那就代表复制这个节点的纹理，但你连cc.Sprite组件都没有");
+                        // 只接受单个节点的直接赋值，不接受批量复制图片
+                        dataArr.value.getComponent(cc.Sprite).spriteFrame = data.getComponent(cc.Sprite).spriteFrame;
+                    }
                 }
 
 
