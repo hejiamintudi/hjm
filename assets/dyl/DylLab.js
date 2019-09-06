@@ -251,9 +251,9 @@ cc.Class({
                             node.rotation = rotation;
                         }
                     }
-                    else if (arr.length === 2) {
-                        let scaleX = arr[0];
-                        let scaleY = arr[1];
+                    else if (tmpArr.length === 2) {
+                        let scaleX = tmpArr[0];
+                        let scaleY = tmpArr[1];
                         for (let i = 0; i < dataArr.length; i++) {
                             let node = dataArr[i];
                             node.setScale(scaleX, scaleY);
@@ -264,8 +264,10 @@ cc.Class({
                     if (!data.getComponent(cc.Sprite)) {
                         return cc.error("如果接受节点，那就代表复制这个节点的纹理，但你连cc.Sprite组件都没有");
                         // 只接受单个节点的直接赋值，不接受批量复制图片
-                        dataArr.value.getComponent(cc.Sprite).spriteFrame = data.getComponent(cc.Sprite).spriteFrame;
                     }
+                    cc.log("复制", dataArr.value.name, data.name);
+                    dataArr.value.getComponent(cc.Sprite).spriteFrame = data.getComponent(cc.Sprite).spriteFrame;
+                    return;
                 }
 
 
